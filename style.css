@@ -1,0 +1,780 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Space Grotesk', -apple-system, sans-serif;
+    color: #1a1a1a;
+    background: #fafaf8;
+    min-height: 100vh;
+    display: flex;
+    font-size: 17px;
+    line-height: 1.7;
+    overflow-x: hidden;
+}
+
+h1, h2, h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    line-height: 1.3;
+}
+
+a {
+    color: #1a1a1a;
+}
+
+/* Sidebar nav */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    justify-content: center;
+    padding: 0 2.5rem;
+}
+
+nav a {
+    text-decoration: none;
+    color: #6e6e6e;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #1a1a1a;
+}
+
+nav a.nav-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 1.3rem;
+    color: #1a1a1a;
+    font-weight: 400;
+    text-decoration: none;
+    letter-spacing: 0;
+    margin-bottom: 1rem;
+}
+
+nav a.active {
+    color: #1a1a1a;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+/* Main content */
+main {
+    margin-left: 240px;
+    margin-right: 2rem;
+    max-width: 640px;
+    width: 100%;
+    padding: 15vh 2rem 4rem;
+}
+
+/* Intro (homepage) */
+.intro {
+    margin-bottom: 3.5rem;
+}
+
+.intro p {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.35rem;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    color: #1a1a1a;
+}
+
+/* Homepage section links */
+.home-section {
+    margin-bottom: 2.5rem;
+}
+
+.home-section h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #6e6e6e;
+    margin-bottom: 0.75rem;
+}
+
+.home-section .home-item {
+    margin-bottom: 0.5rem;
+}
+
+.home-section .home-item a {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.1rem;
+    color: #1a1a1a;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.home-section .home-item a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.home-section .home-item .item-meta {
+    display: block;
+    font-size: 0.8rem;
+    color: #6e6e6e;
+    margin-top: 0.1rem;
+}
+
+/* Poem spotlight on homepage */
+.poem-spotlight-excerpt {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #6e6e6e;
+    margin-top: 0.35rem;
+}
+
+/* Photos woven into pages — break out of content column */
+.home-photo {
+    display: block;
+    width: calc(100vw - 260px);
+    max-width: 600px;
+    margin: 3rem 0 3.5rem;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.home-photo img {
+    width: 100%;
+    display: block;
+    filter: contrast(1.05);
+    transition: transform 0.6s ease;
+}
+
+.home-photo:hover img {
+    transform: scale(1.02);
+}
+
+.home-photo figcaption {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 0.8rem;
+    color: #6e6e6e;
+    line-height: 1.5;
+    padding: 0.5rem 0 0;
+}
+
+/* Page header (for subpages) */
+.page-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e0ddd8;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.page-header p {
+    color: #666;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+}
+
+/* Section category headers */
+.section-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #6e6e6e;
+    margin-top: 3rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e0ddd8;
+}
+
+.section-label:first-of-type {
+    margin-top: 0;
+}
+
+/* Content sections (cards) */
+.piece {
+    position: relative;
+    margin-bottom: 1.25rem;
+    padding: 1.5rem;
+    background: #fff;
+    border: 1px solid #e8e6e1;
+    border-radius: 6px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    cursor: pointer;
+}
+
+.piece:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+}
+
+.piece h2 {
+    font-size: 1.15rem;
+    font-weight: 400;
+    margin-bottom: 0.35rem;
+}
+
+.piece h2 a {
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+.piece h2 a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* Piece with only a title (poem links) */
+.piece h2:last-child {
+    margin-bottom: 0;
+}
+
+.piece .meta {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #6e6e6e;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+}
+
+.piece .meta a {
+    color: #6e6e6e;
+}
+
+.piece .meta a:hover {
+    color: #1a1a1a;
+}
+
+.piece p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #444;
+}
+
+.piece p + p {
+    margin-top: 0.75rem;
+}
+
+.piece p a {
+    color: #444;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: #ccc;
+    transition: text-decoration-color 0.2s;
+}
+
+.piece p a:hover {
+    text-decoration-color: #444;
+}
+
+/* Arrow links inside cards */
+.piece .arrow-link {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: #6e6e6e;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.piece .arrow-link:hover {
+    color: #1a1a1a;
+}
+
+/* Poem excerpt inside card */
+.piece .excerpt {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #6e6e6e;
+    margin-top: 0.35rem;
+}
+
+.piece .poem-text {
+    font-family: 'Fraunces', Georgia, serif;
+    white-space: pre-line;
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: #1a1a1a;
+}
+
+/* Piece without card style */
+.piece.plain {
+    background: none;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+}
+
+.piece.plain:hover {
+    box-shadow: none;
+    transform: none;
+}
+
+.piece.plain p {
+    color: #1a1a1a;
+    font-size: 1rem;
+    line-height: 1.8;
+}
+
+.piece.plain p a {
+    color: #1a1a1a;
+    text-decoration-color: #ccc;
+}
+
+.piece.plain p a:hover {
+    text-decoration-color: #1a1a1a;
+}
+
+/* Contact row */
+.contact-row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e0ddd8;
+}
+
+.contact-row a {
+    font-size: 0.85rem;
+    color: #6e6e6e;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.contact-row a:hover {
+    color: #1a1a1a;
+}
+
+/* Video thumbnail links */
+.video-thumb {
+    display: block;
+    position: relative;
+    margin: 1rem 0 0;
+    overflow: hidden;
+    border-radius: 4px;
+}
+
+.video-thumb img {
+    width: 100%;
+    display: block;
+}
+
+.video-thumb .play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 48px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.video-thumb:hover .play-btn {
+    background: #c00;
+}
+
+.video-thumb .play-btn::after {
+    content: '';
+    display: block;
+    border-style: solid;
+    border-width: 10px 0 10px 18px;
+    border-color: transparent transparent transparent #fff;
+    margin-left: 3px;
+}
+
+/* Theme navigation (poetry page) */
+.theme-nav {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.theme-nav-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6e6e6e;
+    margin-right: 0.25rem;
+}
+
+.theme-tag {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6e6e6e;
+    text-decoration: none;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid #e0ddd8;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+
+.theme-tag:hover {
+    color: #1a1a1a;
+    border-color: #1a1a1a;
+}
+
+.theme-tag.active {
+    color: #1a1a1a;
+    border-color: #1a1a1a;
+    font-weight: 500;
+}
+
+/* Theme pills on poem cards */
+.poem-themes {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+}
+
+.theme-pill {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6e6e6e;
+    padding: 0.15rem 0.4rem;
+    border: 1px solid #e8e6e1;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+a.theme-pill:hover {
+    color: #6e6e6e;
+    border-color: #ccc;
+}
+
+/* Theme collection view */
+.theme-collection-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e0ddd8;
+}
+
+.theme-collection-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.theme-back {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    color: #6e6e6e;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.theme-back:hover {
+    color: #1a1a1a;
+}
+
+/* Divider */
+hr {
+    border: none;
+    border-top: 1px solid #e0ddd8;
+    margin: 2.5rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+
+    nav {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: flex-start;
+        gap: 0.4rem 1rem;
+        padding: 0.75rem 6rem 0.75rem 1.5rem; /* right gutter keeps the links clear of the v2/v1 tab */
+        background: #fafaf8;
+        border-top: 1px solid #e0ddd8;
+        z-index: 10;
+    }
+
+    nav a.nav-name {
+        font-size: 1.05rem;
+        margin-bottom: 0;
+        margin-right: 0.5rem;
+    }
+
+    main {
+        margin-left: 0;
+        margin-right: 0;
+        padding: 2rem 1.5rem 5rem;
+    }
+
+    .mobile-header {
+        display: block;
+        font-family: 'Fraunces', Georgia, serif;
+        font-style: italic;
+        font-size: 1.3rem;
+        color: #1a1a1a;
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+    }
+
+    .nav-whisper,
+    .poem-whisper {
+        display: none !important;
+    }
+
+    .intro p {
+        font-size: 1.15rem;
+    }
+
+    .home-photo {
+        width: 100%;
+        max-width: none;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .page-header h1 {
+        font-size: 1.6rem;
+    }
+
+    .contact-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .poetry-hero {
+        min-height: 60vh;
+    }
+
+    .poetry-hero-excerpt {
+        font-size: 1.4rem;
+    }
+
+    .poetry-moment {
+        padding: 2.5rem 0;
+    }
+}
+
+/* Poetry atmospheric landing */
+.poetry-hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+}
+
+.poetry-hero-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #6e6e6e;
+    margin-bottom: 1.5rem;
+}
+
+.poetry-hero-text {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: poetryFadeIn 0.8s ease forwards;
+    text-decoration: none;
+    display: block;
+}
+
+.poetry-hero-excerpt {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2rem;
+    line-height: 1.8;
+    font-style: italic;
+    color: #1a1a1a;
+}
+
+.poetry-hero-link-text {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    color: #6e6e6e;
+    transition: color 0.2s;
+}
+
+.poetry-hero-text:hover .poetry-hero-link-text {
+    color: #1a1a1a;
+}
+
+/* Three poems for today */
+.poetry-moment {
+    padding: 3.5rem 0;
+    border-bottom: 1px solid #e0ddd8;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.poetry-moment.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.moment-link {
+    display: block;
+    text-decoration: none;
+}
+
+.moment-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: #1a1a1a;
+}
+
+.moment-link:hover .moment-title {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.moment-excerpt {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: #6e6e6e;
+    margin-top: 0.75rem;
+    line-height: 1.6;
+}
+
+.poetry-bridge {
+    text-align: center;
+    padding: 4rem 0;
+}
+
+.poetry-bridge a {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    color: #6e6e6e;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.poetry-bridge a:hover {
+    color: #1a1a1a;
+}
+
+/* Dense poem rows for all.html */
+.poem-row {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f0ede8;
+}
+
+.poem-row a {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.05rem;
+    text-decoration: none;
+    color: #1a1a1a;
+}
+
+.poem-row a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.poem-row-excerpt {
+    display: block;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #6e6e6e;
+    margin-top: 0.15rem;
+    line-height: 1.5;
+}
+
+.back-link {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    color: #6e6e6e;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: #1a1a1a;
+}
+
+/* Accumulating poem whispers — find a place on the page and stay */
+.poem-whisper {
+    position: absolute;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 0.72rem;
+    color: transparent;
+    text-decoration: none;
+    line-height: 1.5;
+    letter-spacing: 0;
+    transition: color 2s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.poem-whisper.visible {
+    color: #d5d2cd;
+    pointer-events: auto;
+}
+
+.poem-whisper:hover {
+    color: #6e6e6e;
+}
+
+/* Mobile header name */
+.mobile-header {
+    display: none;
+}
+
+@keyframes poetryFadeIn {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}

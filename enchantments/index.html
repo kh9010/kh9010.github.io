@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>The Enchantments · 21–23 Aug · Gear Sign-up</title>
+<meta property="og:title" content="The Enchantments — who's carrying what?">
+<meta property="og:description" content="Two nights at the lakes, one day in the Core. Claim your gear, pack your kit.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://kahransingh.com/enchantments/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #1c2124; --ink-soft: #46525a; --bg: #f1f1ec; --card: #fcfcf8;
+    --line: #dfdfd4; --line-strong: #c4c6b8; --muted: #808b86;
+    --pine: #2f5d50; --pine-soft: #e0eae4; --larch: #b57d2a; --larch-soft: #f4e8d4;
+    --watch: #b25b38; --watch-soft: #f6e2da;
+  }
+  body { font-family: 'Hanken Grotesk', -apple-system, sans-serif; color: var(--ink); background: var(--bg); font-size: 14.5px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 1.1rem; }
+  h1, h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; line-height: 1.1; letter-spacing: -0.015em; }
+  a { color: var(--pine); }
+  ::selection { background: var(--pine-soft); }
+
+  /* masthead */
+  .mast { border-bottom: 2px solid var(--ink); padding: 1.1rem 0 0.8rem; }
+  .mast-top { display: flex; align-items: baseline; gap: 0.9rem; flex-wrap: wrap; }
+  .mast h1 { font-size: clamp(1.7rem, 4.5vw, 2.3rem); }
+  .mast .meta { font-size: 0.82rem; color: var(--ink-soft); font-weight: 600; }
+  .mast .meta b { color: var(--larch); }
+  .days { margin-top: 0.7rem; display: grid; gap: 0.15rem; }
+  .day { display: grid; grid-template-columns: 4.2rem 1fr; gap: 0.6rem; font-size: 0.84rem; color: var(--ink-soft); padding: 0.18rem 0; }
+  .day b { font-weight: 700; color: var(--pine); font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; padding-top: 0.1rem; }
+
+  /* name picker */
+  .whoami { position: sticky; top: 0; z-index: 40; background: rgba(241,241,236,.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); padding: 0.45rem 0; }
+  .whoami-inner { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+  .whoami .lbl { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-right: 0.15rem; }
+  .whoami button { font: inherit; font-size: 0.78rem; font-weight: 600; border: 1px solid var(--line-strong); border-radius: 100px; padding: 0.16rem 0.7rem; color: var(--ink-soft); background: var(--card); cursor: pointer; }
+  .whoami button.on { background: var(--pine); border-color: var(--pine); color: #fff; }
+
+  section { padding: 1.15rem 0 0.4rem; }
+  .kicker { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--pine); font-weight: 700; margin-bottom: 0.15rem; }
+  .hint { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.6rem; }
+
+  /* gear — dense two-column rows */
+  .gear { columns: 1; column-gap: 1.6rem; }
+  @media (min-width: 760px) { .gear { columns: 2; } }
+  .ggroup { break-inside: avoid; margin-bottom: 0.9rem; }
+  .ghead { font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 700; border-bottom: 1px solid var(--line-strong); padding-bottom: 0.2rem; margin-bottom: 0.1rem; }
+  .gitem { display: flex; align-items: center; gap: 0.5rem; padding: 0.28rem 0.1rem; border-bottom: 1px solid var(--line); }
+  .gitem:last-child { border-bottom: none; }
+  .gitem .body { flex-grow: 1; min-width: 0; font-size: 0.86rem; }
+  .gitem .name { font-weight: 600; }
+  .gitem .note { color: var(--muted); font-size: 0.78rem; }
+  .gitem .chip { flex-shrink: 0; font-size: 0.72rem; font-weight: 700; border-radius: 100px; padding: 0.14rem 0.6rem; white-space: nowrap; }
+  .chip.done { color: var(--pine); background: var(--pine-soft); }
+  .gitem button.claim { font: inherit; flex-shrink: 0; font-size: 0.72rem; font-weight: 700; border: 1.5px solid var(--line-strong); border-radius: 100px; padding: 0.14rem 0.65rem; background: var(--card); color: var(--ink-soft); cursor: pointer; white-space: nowrap; }
+  .gitem button.claim:hover { border-color: var(--pine); color: var(--pine); }
+  .gitem.mine { background: var(--pine-soft); border-radius: 6px; }
+  .gitem.mine button.claim { background: var(--pine); border-color: var(--pine); color: #fff; }
+  .gitem .sug { color: var(--larch); font-weight: 600; }
+
+  /* claim bar */
+  .claimbar { position: fixed; left: 50%; transform: translate(-50%, 130%); bottom: 0.9rem; z-index: 50; background: var(--ink); color: #fff; border-radius: 100px; padding: 0.45rem 0.45rem 0.45rem 1.1rem; display: flex; align-items: center; gap: 0.8rem; box-shadow: 0 10px 34px rgba(28,40,44,.35); transition: transform .3s cubic-bezier(.2,.7,.2,1); max-width: calc(100vw - 1.6rem); }
+  .claimbar.show { transform: translate(-50%, 0); }
+  .claimbar .msg { font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .claimbar button { font: inherit; font-size: 0.78rem; font-weight: 700; border: none; border-radius: 100px; padding: 0.4rem 1rem; background: var(--larch); color: #fff; cursor: pointer; white-space: nowrap; }
+
+  /* personal checklist — 3-col dense */
+  .plist { display: grid; gap: 0 1.4rem; }
+  @media (min-width: 560px) { .plist { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 860px) { .plist { grid-template-columns: 1fr 1fr 1fr; } }
+  .pitem { display: flex; align-items: baseline; gap: 0.45rem; padding: 0.22rem 0.2rem; border-radius: 5px; cursor: pointer; -webkit-user-select: none; user-select: none; font-size: 0.85rem; }
+  .pitem:hover { background: var(--card); }
+  .pitem .box { flex-shrink: 0; width: 0.85rem; height: 0.85rem; border: 1.5px solid var(--line-strong); border-radius: 4px; position: relative; top: 0.12rem; }
+  .pitem.done .box { background: var(--pine); border-color: var(--pine); }
+  .pitem.done .box:after { content: "✓"; position: absolute; inset: 0; color: #fff; font-size: 0.62rem; line-height: 0.85rem; text-align: center; font-weight: 700; }
+  .pitem.done .txt { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line-strong); }
+  .pitem .why { font-size: 0.75rem; color: var(--muted); }
+  .prognote { font-size: 0.8rem; color: var(--muted); font-style: italic; font-family: 'Fraunces', serif; margin-top: 0.4rem; }
+
+  /* rules — chip one-liners */
+  .rules { margin-top: 0.4rem; columns: 1; column-gap: 2rem; }
+  @media (min-width: 760px) { .rules { columns: 2; } }
+  .rule { display: block; break-inside: avoid; font-size: 0.84rem; color: var(--ink-soft); padding: 0.26rem 0; border-bottom: 1px solid var(--line); }
+  .rule .tag { display: inline-block; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; border-radius: 100px; padding: 0.06rem 0.5rem; margin-right: 0.4rem; position: relative; top: -0.08em; }
+  .tag.must { background: var(--larch-soft); color: var(--larch); }
+  .tag.know { background: var(--pine-soft); color: var(--pine); }
+  .tag.watch { background: var(--watch-soft); color: var(--watch); }
+  .rule b { color: var(--ink); font-weight: 600; }
+
+  .fears { font-size: 0.8rem; color: var(--muted); font-style: italic; font-family: 'Fraunces', serif; margin: 0.8rem 0 0; }
+
+  footer { padding: 1.2rem 0 2rem; margin-top: 1rem; border-top: 2px solid var(--ink); }
+  footer p { font-size: 0.76rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="mast">
+  <div class="wrap">
+    <div class="mast-top">
+      <h1>The Enchantments</h1>
+      <span class="meta"><b>Fri 21 – Sun 23 Aug</b> · 8 of us · ~7 mi + 4,100 ft to camp · 2 nights at the lakes</span>
+    </div>
+    <div class="days">
+      <div class="day"><b>Fri 21</b><span>7 AM out of Seattle → Leavenworth breakfast → one car at each trailhead → in via Snow Lakes, grab a good lakeside campsite.</span></div>
+      <div class="day"><b>Sat 22</b><span>Light packs into the Core toward Colchuck; Aasgard up-and-back for the ambitious. Calzones on return.</span></div>
+      <div class="day"><b>Sun 23</b><span>Short morning hike → pack out → cars ~2 PM → Leavenworth lunch ~4. Kahran sprints to a 9:30 PM flight.</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="whoami">
+  <div class="wrap whoami-inner">
+    <span class="lbl">I am</span>
+    <!-- buttons injected -->
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">Communal gear</div>
+    <p class="hint">Green = settled on the call. Buttons = needs an owner: pick your name, tap, then copy the message it builds into the group chat. <span style="color:var(--larch)">Gold</span> = suggestion, trade freely.</p>
+    <div class="gear" id="gear"><!-- injected --></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">Your own kit — per person, 2 nights</div>
+    <p class="hint">Checkboxes save on your phone. Pack against it Thursday night.</p>
+    <div class="plist" id="personal"><!-- injected --></div>
+    <p class="prognote" id="prognote"></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">Rules &amp; conditions</div>
+    <div class="rules">
+      <div class="rule"><span class="tag watch">Watch</span><b>Fires:</b> trails near the pass closed; Enchantments expected open. Check forest alerts + AQI Thursday.</div>
+      <div class="rule"><span class="tag must">Req</span><b>Permit:</b> camp only at designated Nada/Snow Lakes sites; named holder hikes with us, paper copy carried.</div>
+      <div class="rule"><span class="tag must">Req</span><b>Forest pass</b> on both dashes at the trailheads.</div>
+      <div class="rule"><span class="tag must">Req</span><b>No campfires,</b> ever, anywhere. Stoves only.</div>
+      <div class="rule"><span class="tag must">Req</span><b>Bear-resistant storage</b> for all smellables (food, toothpaste, sunscreen) — canister/Ursack; trees too thin to hang.</div>
+      <div class="rule"><span class="tag must">Req</span><b>Waste:</b> pit toilets on route; catholes legal at camp (the shovel); blue bag from the trailhead dispenser for the Core day.</div>
+      <div class="rule"><span class="tag know">Know</span><b>Goats</b> crave salt — pee on bare rock, far from trail and camp. Rodents raid anything left out.</div>
+      <div class="rule"><span class="tag know">Know</span><b>Weather:</b> hot granite days, near-freezing dawns, possible afternoon storms — start early. Treat all water.</div>
+      <div class="rule"><span class="tag know">Know</span><b>No signal.</b> Offline maps before Leavenworth; the satellite communicator is the safety line.</div>
+    </div>
+    <p class="fears">Official fear ranking: 1. mosquitoes (hence permethrin + head nets) · 2. goats · 3. bears (mitigation: poncho trick) · 4. marmots (disputed) — agenda time allocated: 90%.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap"><p>Not indexed, just for us · check Okanogan–Wenatchee alerts before driving · kahransingh.com/enchantments</p></div>
+</footer>
+
+<div class="claimbar" id="claimbar">
+  <span class="msg" id="claimmsg"></span>
+  <button id="copybtn">Copy for group chat</button>
+</div>
+
+<script>
+const PEOPLE = ["Kahran","Shankar","Ambika","Shivani","Jay","Paige","Mathias","Gourav"];
+
+// taken = settled on the Aug 12 call. sug = suggestion only.
+const GEAR = [
+  { grp: "Shelter & sleep", items: [
+    { id:"tent1", name:"Tent #1", taken:"Paige" },
+    { id:"tent2", name:"Tent #2", note:"Pradeep's loaner — collect + carry", sug:"Shankar" },
+    { id:"tent3", name:"Tent #3", taken:"Shivani" },
+    { id:"tent4", name:"Tent #4", note:"buy or borrow", sug:"Kahran" },
+    { id:"blanket", name:"Emergency blanket", taken:"Shivani" },
+  ]},
+  { grp: "Kitchen & water", items: [
+    { id:"stove1", name:"Jetboil #1 + fuel", taken:"Shivani + Jay" },
+    { id:"stove2", name:"Jetboil #2 + fuel", note:"Pradeep's loaner — collect + carry", sug:"Gourav" },
+    { id:"propane", name:"Propane stove", note:"real cooking → calzones", taken:"Jay" },
+    { id:"filter", name:"Water filtration", note:"straw + everyone's bottle filters", taken:"Jay + all" },
+    { id:"dinner1", name:"Ramen dinner", taken:"Ambika + Shankar" },
+    { id:"dinner2", name:"Calzone dinner", taken:"Kahran + Gourav" },
+    { id:"breakfast", name:"Breakfast + coffee ×2", note:"eggs or freeze-dried", taken:"Jay + Shivani" },
+    { id:"lunch", name:"Trail lunches", note:"Seattle crew shops; Instacart gaps", taken:"Paige + Mathias" },
+    { id:"cheer", name:"Camp cheer (whiskey…)", sug:"Gourav" },
+  ]},
+  { grp: "Safety & camp", items: [
+    { id:"bear1", name:"Bear canister #1", note:"REQUIRED storage — no hanging", taken:"Jay" },
+    { id:"bear2", name:"Bear canister #2", note:"buy or rent (outfitters)", sug:"Gourav" },
+    { id:"firstaid", name:"First-aid kits", taken:"Shivani + Gourav" },
+    { id:"inreach", name:"Satellite communicator", note:"someone owns one — claim it", sug:"?" },
+    { id:"shovel", name:"Shovel / trowel", note:"borrow from Greg", sug:"Kahran" },
+    { id:"repair", name:"Repair kit", note:"duct tape, cord, patches", sug:"Mathias" },
+    { id:"games", name:"Camp games", note:"Fishbowl kit; Dominion if it fits", taken:"Mathias + Paige" },
+  ]},
+  { grp: "Logistics", items: [
+    { id:"car1", name:"Car #1 — Shankar drives", note:"pass on dash", taken:"Shankar + Ambika" },
+    { id:"car2", name:"Car #2 — Jay drives", note:"trailhead split ↔ Bellingham question", taken:"Jay + Shivani" },
+    { id:"permit", name:"Permit printout", note:"named holder + ID", sug:"Kahran" },
+  ]},
+];
+
+const PERSONAL = [
+  ["Pack 50–65 L", "+ rain cover"],
+  ["Day pack", "Core day"],
+  ["Sleeping bag ~25 °F", ""],
+  ["Sleeping pad", ""],
+  ["Headlamp", "fresh batteries"],
+  ["Rain shell", ""],
+  ["Warm puffy", ""],
+  ["Layers + 2 spare socks", "no cotton"],
+  ["Beanie + gloves", ""],
+  ["Sun hat + sunglasses", ""],
+  ["Sunscreen + lip balm", ""],
+  ["Bug spray", "fear #1"],
+  ["Permethrin on clothes", "by Thu"],
+  ["Head net", "~$10"],
+  ["2–3 L water + bottle filter", ""],
+  ["Trekking poles", ""],
+  ["Broken-in footwear", ""],
+  ["Snacks × 3 days", "lots"],
+  ["Bowl/mug + spork", ""],
+  ["Meds + blister kit", ""],
+  ["Phone + battery bank", "offline maps"],
+  ["Blue bag", "trailhead dispenser"],
+  ["Trash ziplock", ""],
+  ["Swimsuit", "optional, smug"],
+  ["ID + cash", "pretzel fund"],
+];
+
+const LS = "enchant2026";
+const state = JSON.parse(localStorage.getItem(LS) || "{}");
+function save() { localStorage.setItem(LS, JSON.stringify(state)); }
+
+const whoWrap = document.querySelector(".whoami-inner");
+PEOPLE.forEach(p => {
+  const b = document.createElement("button");
+  b.textContent = p;
+  b.onclick = () => { state.me = p; save(); render(); };
+  whoWrap.appendChild(b);
+});
+
+const gearWrap = document.getElementById("gear");
+const ALL_ITEMS = GEAR.flatMap(g => g.items);
+function renderGear() {
+  gearWrap.innerHTML = "";
+  const claims = state.claims || {};
+  GEAR.forEach(group => {
+    const box = document.createElement("div");
+    box.className = "ggroup";
+    box.innerHTML = `<div class="ghead">${group.grp}</div>`;
+    group.items.forEach(g => {
+      const mine = claims[g.id] === state.me && state.me;
+      const row = document.createElement("div");
+      row.className = "gitem" + (mine ? " mine" : "");
+      row.innerHTML = `<div class="body"><span class="name">${g.name}</span>${g.note ? ` <span class="note">· ${g.note}</span>` : ""}${!g.taken && g.sug && g.sug !== "?" ? ` <span class="sug">→ ${g.sug}?</span>` : ""}</div>`;
+      if (g.taken) {
+        row.insertAdjacentHTML("beforeend", `<span class="chip done">${g.taken} ✓</span>`);
+      } else {
+        const btn = document.createElement("button");
+        btn.className = "claim";
+        btn.textContent = mine ? "Mine ✓" : "I'll bring it";
+        btn.onclick = () => {
+          if (!state.me) { alert("Pick your name at the top first!"); return; }
+          state.claims = state.claims || {};
+          if (state.claims[g.id] === state.me) delete state.claims[g.id];
+          else state.claims[g.id] = state.me;
+          save(); render();
+        };
+        row.appendChild(btn);
+      }
+      box.appendChild(row);
+    });
+    gearWrap.appendChild(box);
+  });
+}
+
+const bar = document.getElementById("claimbar");
+const msgEl = document.getElementById("claimmsg");
+document.getElementById("copybtn").onclick = async () => {
+  const items = myClaims().map(g => g.name).join(", ");
+  const text = `🏔️ Enchantments gear — ${state.me} claiming: ${items}`;
+  try { await navigator.clipboard.writeText(text); } catch { prompt("Copy this:", text); return; }
+  msgEl.textContent = "Copied — paste it in the group chat!";
+  setTimeout(renderBar, 2200);
+};
+function myClaims() {
+  const c = state.claims || {};
+  return ALL_ITEMS.filter(g => !g.taken && c[g.id] === state.me);
+}
+function renderBar() {
+  const n = myClaims().length;
+  if (state.me && n > 0) {
+    msgEl.textContent = `${state.me}: ${n} item${n > 1 ? "s" : ""} claimed`;
+    bar.classList.add("show");
+  } else bar.classList.remove("show");
+}
+
+const pWrap = document.getElementById("personal");
+const prog = document.getElementById("prognote");
+function renderPersonal() {
+  pWrap.innerHTML = "";
+  const done = state.packed || {};
+  PERSONAL.forEach(([txt, why], i) => {
+    const el = document.createElement("div");
+    el.className = "pitem" + (done[i] ? " done" : "");
+    el.innerHTML = `<span class="box"></span><span class="txt">${txt}${why ? ` <span class="why">· ${why}</span>` : ""}</span>`;
+    el.onclick = () => {
+      state.packed = state.packed || {};
+      state.packed[i] = !state.packed[i];
+      save(); renderPersonal();
+    };
+    pWrap.appendChild(el);
+  });
+  const n = Object.values(done).filter(Boolean).length;
+  prog.textContent = n === 0 ? "Nothing packed yet — the mountain is patient."
+    : n === PERSONAL.length ? "Fully packed. See you at the trailhead. 🏔️"
+    : `${n} of ${PERSONAL.length} packed.`;
+}
+
+function render() {
+  whoWrap.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.textContent === state.me));
+  renderGear(); renderBar(); renderPersonal();
+}
+render();
+</script>
+</body>
+</html>

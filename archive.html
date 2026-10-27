@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <title>Archive — Kahran Singh</title>
+    <meta name="description" content="Preserved moments and celebrations. Kahran and Gourav's wedding in Jaisalmer, December 2022.">
+    <meta property="og:title" content="Archive — Kahran Singh">
+    <meta property="og:description" content="Preserved moments and celebrations.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kahransingh.com/archive.html">
+    <meta property="og:image" content="https://kahransingh.com/wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1207.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Archive — Kahran Singh">
+    <meta name="twitter:description" content="Preserved moments and celebrations.">
+    <meta name="twitter:image" content="https://kahransingh.com/wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1207.jpg">
+    <link rel="canonical" href="https://kahransingh.com/archive.html">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,600&display=swap" rel="stylesheet">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H63H3KD6WQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-H63H3KD6WQ');
+</script>
+</head>
+<body>
+    <main>
+        <a href="/v1/" class="mobile-header">kahran</a>
+        <div class="page-header">
+            <h1>archive</h1>
+        </div>
+
+        <div class="piece">
+            <h2><a href="/wedding-celebration.html">Kahran &amp; Gourav &mdash; Jaisalmer, December 2022</a></h2>
+            <p class="meta">Wedding</p>
+            <p>Four days in the Golden City. Poems, films, photos, and the full story.</p>
+            <a href="/wedding-celebration.html" class="arrow-link">View &rarr;</a>
+        </div>
+
+        <div class="piece">
+            <h2><a href="https://www.amazon.com/How-World-Works-Kahran-Singh/dp/9395621354">How the World Works</a></h2>
+            <p class="meta">Poetry &mdash; 2022</p>
+            <p>First book of poems.</p>
+        </div>
+
+        <div class="piece">
+            <h2><a href="/elopement/">Telluride, December 2021</a></h2>
+            <p class="meta">Elopement</p>
+            <p>Just the two of us, in the snow, in Indian dress.</p>
+            <a href="/elopement/" class="arrow-link">View &rarr;</a>
+        </div>
+
+        <div class="piece">
+            <h2><a href="https://yourstory.com/2016/04/vidyanext" target="_blank" rel="noopener">Vidyanext</a></h2>
+            <p class="meta">EdTech &mdash; 2015&ndash;2019</p>
+            <p>Served as CEO of this Indian edtech company.</p>
+        </div>
+
+    </main>
+
+    <nav>
+        <a href="/v1/" class="nav-name">kahran</a>
+        <a href="/poetry.html">poetry</a>
+        <a href="/photography.html">photography</a>
+        <a href="/projects.html">projects</a>
+        <a href="/lately/">lately</a>
+        <a href="/working-with-me.html">work with me</a>
+        <a href="/speaking.html">speaking</a>
+        <a href="/archive.html" class="active">archive</a>
+        <a href="/about.html">about</a>
+    </nav>
+    <script src="/poem-whisper.js"></script>
+    <script>
+    document.querySelectorAll('.piece').forEach(function(card) {
+        var link = card.querySelector('h2 a');
+        if (!link) return;
+        card.addEventListener('click', function(e) {
+            if (e.target.closest('a')) return;
+            if (link.target === '_blank') {
+                window.open(link.href, '_blank', 'noopener');
+            } else {
+                window.location.href = link.href;
+            }
+        });
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <title>Guadalajara — Kahran Singh</title>
+    <meta property="og:title" content="Guadalajara — Kahran Singh">
+    <meta property="og:description" content="I wonder if I would feel the blood if I didn't know to search for it.">
+    <meta name="description" content="I wonder if I would feel the blood if I didn't know to search for it.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://kahransingh.com/poems/guadalajara.html">
+    <meta property="og:image" content="https://kahransingh.com/photos/staircase.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Guadalajara — Kahran Singh">
+    <meta name="twitter:description" content="I wonder if I would feel the blood if I didn't know to search for it.">
+    <meta name="twitter:image" content="https://kahransingh.com/photos/staircase.jpg">
+    <link rel="canonical" href="https://kahransingh.com/poems/guadalajara.html">
+    <link rel="stylesheet" href="poem.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400;1,6..96,600&display=swap" rel="stylesheet">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H63H3KD6WQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-H63H3KD6WQ');
+</script>
+</head>
+<body>
+    <div class="poem-scroll">
+        <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">Guadalajara</h1>
+        <div class="stanza title-slide">
+            <div class="stanza-text">Guadalajara</div>
+            <div class="poem-meta"></div>
+            <div class="scroll-hint">
+                <span>scroll</span>
+                <div class="chevron"></div>
+            </div>
+        </div>
+
+        <div class="stanza">
+            <div class="stanza-text">I feel blood and strife and fear
+In this soil
+I feel worry
+In this heart</div>
+        </div>
+
+        <div class="stanza">
+            <div class="stanza-text">I see fear in the eyes
+And in the way the plants grow
+They seem
+As though in wonder
+As though in fear</div>
+        </div>
+
+        <div class="stanza">
+            <div class="stanza-text">What is that they say about the trees men make
+Tall, sightless, reaching as did their ancestors, their forebears, those who had a time to live and a time to fall, in a way that these new trees don't have, anymore.</div>
+        </div>
+
+        <div class="stanza">
+            <div class="stanza-text">I wonder if i would feel the blood if I didn't know to search for it.</div>
+        </div>
+
+        <div class="stanza end-slide">
+            <div class="stanza-text"><a href="/poetry.html">&larr; poems</a></div>
+        </div>
+    </div>
+
+    <script>
+    const stanzas = document.querySelectorAll('.stanza-text');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'none';
+                entry.target.offsetHeight;
+                entry.target.style.animation = 'fadeIn 0.8s ease forwards';
+            }
+        });
+    }, { threshold: 0.5 });
+    stanzas.forEach(s => observer.observe(s));
+    </script>
+    <script src="related.js"></script>
+</body>
+</html>

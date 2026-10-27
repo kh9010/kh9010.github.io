@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <title>Speaking — Kahran Singh</title>
+    <meta name="description" content="Talks and presentations by Kahran Singh on storytelling, fundraising, and generative AI.">
+    <meta property="og:title" content="Speaking — Kahran Singh">
+    <meta property="og:description" content="On storytelling, fundraising, and how we talk to machines.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kahransingh.com/speaking.html">
+    <meta property="og:image" content="https://kahransingh.com/wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1361.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Speaking — Kahran Singh">
+    <meta name="twitter:description" content="On storytelling, fundraising, and how we talk to machines.">
+    <meta name="twitter:image" content="https://kahransingh.com/wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1361.jpg">
+    <link rel="canonical" href="https://kahransingh.com/speaking.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@1,9..144,400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 400;
+            color: #111;
+            background: #fff;
+            line-height: 1.6;
+        }
+
+        /* ---- NAV ---- */
+        .site-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100;
+            border-bottom: 1px solid #eee;
+        }
+
+        .site-nav a {
+            text-decoration: none;
+            color: #111;
+        }
+
+        .nav-home {
+            font-family: 'Fraunces', Georgia, serif;
+            font-style: italic;
+            font-size: 1.3rem;
+            font-weight: 400;
+            letter-spacing: 0;
+        }
+
+        .nav-current {
+            font-size: 0.75rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #999;
+        }
+
+        /* ---- HERO ---- */
+        .hero {
+            margin-top: 60px;
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .hero img {
+            width: 100%;
+            height: 72vh;
+            object-fit: cover;
+            object-position: center 30%;
+            display: block;
+        }
+
+        .hero-text {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 3rem 0;
+        }
+
+        .hero-text h1 {
+            font-size: 2.8rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero-text .subtitle {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        /* ---- CONTENT CONTAINER ---- */
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 3rem;
+        }
+
+        /* ---- INTRO ---- */
+        .intro {
+            padding: 3rem 0 2.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .intro p {
+            font-size: 1.05rem;
+            color: #333;
+            line-height: 1.7;
+            max-width: 640px;
+        }
+
+        .intro .availability {
+            display: inline-block;
+            margin-top: 1.25rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #999;
+        }
+
+        /* ---- TOPICS GRID ---- */
+        .topics {
+            padding: 3rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #999;
+            margin-bottom: 1.75rem;
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.75rem 3rem;
+        }
+
+        .topic h2 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+
+        .topic p {
+            font-size: 0.88rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        /* ---- TALKS ---- */
+        .talks {
+            padding: 3rem 0 1rem;
+        }
+
+        .talk-group {
+            margin-bottom: 2.5rem;
+        }
+
+        .talk-group-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #999;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .talk-row {
+            display: grid;
+            grid-template-columns: 1fr 180px 100px 60px;
+            align-items: baseline;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            gap: 1rem;
+        }
+
+        .talk-row:first-of-type {
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .talk-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .talk-title a {
+            color: #111;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .talk-title a:hover {
+            color: #666;
+        }
+
+        .talk-event {
+            font-size: 0.82rem;
+            color: #666;
+        }
+
+        .talk-date {
+            font-size: 0.82rem;
+            color: #999;
+        }
+
+        .talk-link a {
+            font-size: 0.78rem;
+            color: #999;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .talk-link a:hover {
+            color: #111;
+        }
+
+        /* ---- FEATURED PANEL ---- */
+        .featured {
+            padding: 3rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .featured-block {
+            border-left: 3px solid #111;
+            padding-left: 2rem;
+        }
+
+        .featured-block .featured-tag {
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: #999;
+            margin-bottom: 0.75rem;
+        }
+
+        .featured-block h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 1.3;
+            margin-bottom: 0.5rem;
+        }
+
+        .featured-block .featured-meta {
+            font-size: 0.88rem;
+            color: #333;
+            margin-bottom: 0.75rem;
+        }
+
+        .featured-block .featured-desc {
+            font-size: 0.92rem;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 0.4rem;
+        }
+
+        .featured-block .featured-panelists {
+            font-size: 0.82rem;
+            color: #999;
+        }
+
+        /* ---- CTA ---- */
+        .cta {
+            padding: 5rem 0;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2rem;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            margin-bottom: 1rem;
+        }
+
+        .cta a {
+            display: inline-block;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #111;
+            text-decoration: none;
+            padding: 0.75rem 2rem;
+            border: 1.5px solid #111;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .cta a:hover {
+            background: #111;
+            color: #fff;
+        }
+
+        /* ---- FOOTER ---- */
+        .site-footer {
+            border-top: 1px solid #eee;
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .site-footer a {
+            font-size: 0.78rem;
+            color: #999;
+            text-decoration: none;
+            text-transform: lowercase;
+            letter-spacing: 0.04em;
+            transition: color 0.15s;
+        }
+
+        .site-footer a:hover {
+            color: #111;
+        }
+
+        /* ---- RESPONSIVE ---- */
+        @media (max-width: 768px) {
+            .site-nav {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .hero img {
+                height: 50vh;
+            }
+
+            .hero-text {
+                padding: 2rem 1.5rem 0;
+            }
+
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+
+            .content {
+                padding: 0 1.5rem;
+            }
+
+            .topics-grid {
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+            }
+
+            .talk-row {
+                grid-template-columns: 1fr;
+                gap: 0.15rem;
+                padding: 0.85rem 0;
+            }
+
+            .talk-event,
+            .talk-date {
+                font-size: 0.78rem;
+            }
+
+            .talk-link {
+                margin-top: 0.15rem;
+            }
+
+            .featured-block {
+                padding-left: 1.25rem;
+            }
+
+            .cta h2 {
+                font-size: 1.5rem;
+            }
+
+            .site-footer {
+                padding: 2rem 1.5rem;
+                flex-wrap: wrap;
+                gap: 1rem 1.5rem;
+            }
+        }
+    </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H63H3KD6WQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-H63H3KD6WQ');
+</script>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav class="site-nav">
+        <a href="/" class="nav-home">kahran</a>
+        <span class="nav-current">speaking</span>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <img src="photos/speaking-kauai.jpg" alt="Narrative Threads panel at Common Ground Summit, Kauai">
+        <div class="hero-text">
+            <h1>Speaking</h1>
+            <p class="subtitle">On storytelling, fundraising, and how we talk to machines.</p>
+        </div>
+    </section>
+
+    <!-- Intro -->
+    <div class="content">
+        <div class="intro">
+            <p>I speak about the things I spend my days doing &mdash; building companies, raising capital, and figuring out how generative AI actually fits into creative and strategic work.</p>
+            <span class="availability">Available for panels, workshops, and keynotes</span>
+        </div>
+    </div>
+
+    <!-- Topics -->
+    <div class="content">
+        <div class="topics">
+            <p class="section-label">Topics I speak on</p>
+            <div class="topics-grid">
+                <div class="topic">
+                    <h2>Storytelling &amp; Narrative Strategy</h2>
+                    <p>How to build and deploy narrative as a tool for connection, identity, and impact.</p>
+                </div>
+                <div class="topic">
+                    <h2>Fundraising for Early-Stage Companies</h2>
+                    <p>Raising the right kind of capital, managing investor psychology, and curating your story.</p>
+                </div>
+                <div class="topic">
+                    <h2>Generative AI for Practitioners</h2>
+                    <p>Practical applications of AI in creative and strategic work, from prompting to production.</p>
+                </div>
+                <div class="topic">
+                    <h2>Behavioral Design</h2>
+                    <p>Designing products and experiences that work with human psychology, not against it.</p>
+                </div>
+            </div>
+            <p style="font-size: 1.05rem; color: #333; line-height: 1.7; max-width: 640px; margin-top: 2rem;">I speak for a fee, but for causes and classrooms I care about, I'm always open to a different conversation.</p>
+        </div>
+    </div>
+
+    <!-- Featured Panel -->
+    <div class="content">
+        <div class="featured">
+            <div class="featured-block">
+                <p class="featured-tag">Featured Panel</p>
+                <h2>Narrative Threads: Weaving Voice, Vision, and Value</h2>
+                <p class="featured-meta">Common Ground Summit &rsquo;25 &mdash; Kauai &mdash; December 2025</p>
+                <p class="featured-desc">A panel on the power of narrative as a tool for connection, identity, and impact.</p>
+                <p class="featured-panelists">With Von Diaz, Scott Goldberg, and Michael Hansen. Moderated by Amanda Dugan.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selected Talks -->
+    <div class="content">
+        <div class="talks">
+            <p class="section-label">Selected Talks</p>
+
+            <!-- Fundraising -->
+            <div class="talk-group">
+                <p class="talk-group-label">Fundraising</p>
+
+                <div class="talk-row">
+                    <span class="talk-title"><a href="https://www.youtube.com/watch?v=D7j-jQ12-Kk" target="_blank">Psychological Challenges &amp; How to Brace for Them</a></span>
+                    <span class="talk-event">StartOut</span>
+                    <span class="talk-date">Sep 2025</span>
+                    <span class="talk-link"><a href="https://www.youtube.com/watch?v=D7j-jQ12-Kk" target="_blank">Watch</a></span>
+                </div>
+
+                <div class="talk-row">
+                    <span class="talk-title"><a href="https://www.youtube.com/watch?v=j2tkS5o6G0A" target="_blank">Curating Your Story</a></span>
+                    <span class="talk-event">StartOut</span>
+                    <span class="talk-date">Aug 2025</span>
+                    <span class="talk-link"><a href="https://www.youtube.com/watch?v=j2tkS5o6G0A" target="_blank">Watch</a></span>
+                </div>
+
+                <div class="talk-row">
+                    <span class="talk-title"><a href="https://www.youtube.com/watch?v=2j3plyzLtRY" target="_blank">Understanding the Money You Can Raise</a></span>
+                    <span class="talk-event">StartOut</span>
+                    <span class="talk-date">Jul 2025</span>
+                    <span class="talk-link"><a href="https://www.youtube.com/watch?v=2j3plyzLtRY" target="_blank">Watch</a></span>
+                </div>
+
+                <div class="talk-row">
+                    <span class="talk-title"><a href="https://www.youtube.com/watch?v=qtYkYYBOJ8U" target="_blank">Know Your Investors Before the First Meeting</a></span>
+                    <span class="talk-event">StartOut</span>
+                    <span class="talk-date">Jun 2025</span>
+                    <span class="talk-link"><a href="https://www.youtube.com/watch?v=qtYkYYBOJ8U" target="_blank">Watch</a></span>
+                </div>
+            </div>
+
+            <!-- Generative AI -->
+            <div class="talk-group">
+                <p class="talk-group-label">Generative AI</p>
+
+                <div class="talk-row">
+                    <span class="talk-title"><a href="https://www.youtube.com/watch?v=86KEXmW5CRE" target="_blank">10 Tinkering Experiments To Do with AI</a></span>
+                    <span class="talk-event">StartOut</span>
+                    <span class="talk-date">Mar 2025</span>
+                    <span class="talk-link"><a href="https://www.youtube.com/watch?v=86KEXmW5CRE" target="_blank">Watch</a></span>
+                </div>
+
+                <div class="talk-row">
+                    <span class="talk-title"><a href="https://www.youtube.com/watch?v=n-8OI-cjPp8" target="_blank">Advanced Prompting: Controlling Style, Tone and Context</a></span>
+                    <span class="talk-event">StartOut</span>
+                    <span class="talk-date">Feb 2025</span>
+                    <span class="talk-link"><a href="https://www.youtube.com/watch?v=n-8OI-cjPp8" target="_blank">Watch</a></span>
+                </div>
+
+                <div class="talk-row">
+                    <span class="talk-title"><a href="https://www.youtube.com/watch?v=q6fTgWRc8UI" target="_blank">Prompting: How to Talk to Our AI Friends</a></span>
+                    <span class="talk-event">StartOut</span>
+                    <span class="talk-date">Jan 2025</span>
+                    <span class="talk-link"><a href="https://www.youtube.com/watch?v=q6fTgWRc8UI" target="_blank">Watch</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="content">
+        <div class="cta">
+            <h2>Let's talk</h2>
+            <a href="mailto:hello@joyus.studio">Get in touch</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <a href="/">home</a>
+        <a href="/poetry.html">poetry</a>
+        <a href="/photography.html">photography</a>
+        <a href="/projects.html">projects</a>
+        <a href="/working-with-me.html">work with me</a>
+        <a href="/archive.html">archive</a>
+        <a href="/about.html">about</a>
+    </footer>
+
+</body>
+</html>

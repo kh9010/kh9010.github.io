@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <title>Kahran &amp; Gourav — A Celebration of Love &mdash; Kahran Singh</title>
+    <meta name="description" content="Kahran and Gourav's wedding celebration in Jaisalmer, December 2022. Poems, photos, films, and the full wedding story.">
+    <meta property="og:title" content="Kahran & Gourav — A Celebration of Love">
+    <meta property="og:description" content="Four days of love and celebration at Suryagarh, Jaisalmer. December 2022.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kahransingh.com/wedding-celebration.html">
+    <meta property="og:image" content="https://kahransingh.com/wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1207.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Kahran & Gourav — A Celebration of Love">
+    <meta name="twitter:description" content="Four days of love and celebration at Suryagarh, Jaisalmer. December 2022.">
+    <meta name="twitter:image" content="https://kahransingh.com/wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1207.jpg">
+    <link rel="canonical" href="https://kahransingh.com/wedding-celebration.html">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,600&display=swap" rel="stylesheet">
+    <style>
+        .wedding-hero {
+            display: block;
+            width: calc(100vw - 260px);
+            max-width: 900px;
+            margin: 0 0 3rem;
+            overflow: hidden;
+            line-height: 0;
+        }
+
+        .wedding-hero img {
+            width: 100%;
+            display: block;
+        }
+
+        .wedding-event-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #888;
+            margin-top: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .wedding-event-label:first-of-type {
+            margin-top: 0;
+        }
+
+        .wedding-scroll {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            width: calc(100vw - 260px);
+            max-width: 900px;
+            padding-bottom: 0.75rem;
+            scrollbar-width: thin;
+            scrollbar-color: #e0ddd8 transparent;
+        }
+
+        .wedding-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .wedding-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .wedding-scroll::-webkit-scrollbar-thumb {
+            background: #e0ddd8;
+            border-radius: 2px;
+        }
+
+        .wedding-scroll img {
+            height: 55vh;
+            width: auto;
+            scroll-snap-align: start;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .wedding-section {
+            margin-bottom: 3rem;
+        }
+
+        .wedding-section h2 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            font-style: italic;
+            margin-bottom: 0.75rem;
+        }
+
+        .wedding-section p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #444;
+            margin-bottom: 0.75rem;
+        }
+
+        .wedding-section p a {
+            color: #444;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-color: #ccc;
+            transition: text-decoration-color 0.2s;
+        }
+
+        .wedding-section p a:hover {
+            text-decoration-color: #444;
+        }
+
+        .poem-link-card {
+            display: block;
+            padding: 1.25rem 1.5rem;
+            background: #fff;
+            border: 1px solid #e8e6e1;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: box-shadow 0.2s, transform 0.2s;
+            margin-bottom: 0.75rem;
+        }
+
+        .poem-link-card:hover {
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            transform: translateY(-1px);
+        }
+
+        .poem-link-card .card-title {
+            font-family: 'Fraunces', Georgia, serif;
+            font-size: 1.1rem;
+            color: #1a1a1a;
+        }
+
+        .poem-link-card .card-excerpt {
+            font-family: 'Fraunces', Georgia, serif;
+            font-style: italic;
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 0.25rem;
+        }
+
+        .video-link {
+            display: block;
+            padding: 1.25rem 1.5rem;
+            background: #fff;
+            border: 1px solid #e8e6e1;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: box-shadow 0.2s, transform 0.2s;
+            margin-bottom: 0.75rem;
+        }
+
+        .video-link:hover {
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            transform: translateY(-1px);
+        }
+
+        .video-link .link-title {
+            font-family: 'Fraunces', Georgia, serif;
+            font-size: 1.05rem;
+            color: #1a1a1a;
+        }
+
+        .video-link .link-meta {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 0.15rem;
+        }
+
+        .poems-bridge {
+            margin-top: 1rem;
+        }
+
+        .poems-bridge a {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            color: #999;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .poems-bridge a:hover {
+            color: #1a1a1a;
+        }
+
+        .wedding-credit {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e0ddd8;
+            font-size: 0.8rem;
+            color: #999;
+            line-height: 1.8;
+        }
+
+        .wedding-credit a {
+            color: #999;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            text-decoration-color: #ddd;
+        }
+
+        .wedding-credit a:hover {
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .wedding-hero {
+                width: calc(100% + 3rem);
+                max-width: none;
+                margin-left: -1.5rem;
+                margin-right: -1.5rem;
+            }
+
+            .wedding-scroll {
+                width: calc(100% + 3rem);
+                max-width: none;
+                margin-left: -1.5rem;
+                margin-right: -1.5rem;
+                padding-left: 1.5rem;
+            }
+
+            .wedding-scroll img {
+                height: 40vh;
+            }
+        }
+    </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H63H3KD6WQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-H63H3KD6WQ');
+</script>
+</head>
+<body>
+    <main>
+        <a href="/v1/" class="mobile-header">kahran</a>
+        <div class="page-header">
+            <h1>Kahran &amp; Gourav</h1>
+            <p>A celebration of love &mdash; Jaisalmer, December 2022</p>
+        </div>
+
+        <div class="wedding-hero">
+            <img src="wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1207.jpg" alt="Kahran and Gourav's wedding at Suryagarh, Jaisalmer">
+        </div>
+
+        <div class="wedding-section">
+            <p>Four days in the Golden City &mdash; from sunset dinners in the sand dunes, to haldi in the courtyard, sangeet by the lake, and a wedding under the Rajasthani sky. 150 guests flew in from around the world to celebrate at Suryagarh, Jaisalmer.</p>
+        </div>
+
+        <div class="wedding-event-label">Welcome</div>
+        <div class="wedding-scroll">
+            <img src="wedding/photos/welcome/NVP_KAHRANXGOURAV_WELCOME-1081.jpg" alt="Welcome celebration">
+            <img src="wedding/photos/welcome/NVP_KAHRANXGOURAV_WELCOME-1192.jpg" alt="Welcome evening">
+            <img src="wedding/photos/welcome/NVP_KAHRANXGOURAV_WELCOME-1269.jpg" alt="Welcome gathering">
+            <img src="wedding/photos/welcome/NVP_KAHRANXGOURAV_WELCOME-1384.jpg" alt="Welcome dinner">
+        </div>
+
+        <div class="wedding-event-label">Haldi &amp; Mehendi</div>
+        <div class="wedding-scroll">
+            <img src="wedding/photos/haldi-mehendi/NVP_KAHRANXGOURAV_HALDI-MEHENDI-1199.jpg" alt="Haldi ceremony">
+            <img src="wedding/photos/haldi-mehendi/NVP_KAHRANXGOURAV_HALDI-MEHENDI-1375.jpg" alt="Mehendi celebration">
+            <img src="wedding/photos/haldi-mehendi/NVP_KAHRANXGOURAV_HALDI-MEHENDI-1689.jpg" alt="Haldi joy">
+            <img src="wedding/photos/haldi-mehendi/NVP_KAHRANXGOURAV_HALDI-MEHENDI-1948.jpg" alt="Mehendi details">
+        </div>
+
+        <div class="wedding-event-label">Sangeet</div>
+        <div class="wedding-scroll">
+            <img src="wedding/photos/sangeet/NVP_KAHRANXGOURAV_SANGEET-1053.jpg" alt="Sangeet evening">
+            <img src="wedding/photos/sangeet/NVP_KAHRANXGOURAV_SANGEET-1225.jpg" alt="Sangeet performance">
+            <img src="wedding/photos/sangeet/NVP_KAHRANXGOURAV_SANGEET-1778.jpg" alt="Sangeet celebration">
+            <img src="wedding/photos/sangeet/NVP_KAHRANXGOURAV_SANGEET-1809.jpg" alt="Sangeet dancing">
+        </div>
+
+        <div class="wedding-event-label">Wedding Day</div>
+        <div class="wedding-scroll">
+            <img src="wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1204.jpg" alt="Wedding ceremony">
+            <img src="wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1257.jpg" alt="Wedding celebration">
+            <img src="wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1279.jpg" alt="Wedding reception">
+            <img src="wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1329.jpg" alt="Wedding joy">
+            <img src="wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1914.jpg" alt="Wedding evening">
+        </div>
+
+        <div class="wedding-section" style="margin-top: 3rem;">
+            <h2>The poems</h2>
+            <p>Two poems &mdash; one written for the day, one written a year on.</p>
+
+            <a href="poems/wedding-poem.html" class="poem-link-card">
+                <div class="card-title">Wedding Poem</div>
+                <div class="card-excerpt">Our story began in Sadashivnagar, under orange lights and in empty roads</div>
+            </a>
+
+            <a href="poems/its-funny.html" class="poem-link-card">
+                <div class="card-title">one year on</div>
+                <div class="card-excerpt">21 is 21 is 21 is 21 until one day you can&rsquo;t sleep</div>
+            </a>
+
+            <div class="poems-bridge">
+                <a href="/poems/all.html#love">More poems about love &rarr;</a>
+            </div>
+        </div>
+
+        <div class="wedding-section">
+            <h2>The films</h2>
+
+            <a href="https://www.youtube.com/watch?v=HGR8WHLGTpw" class="video-link" target="_blank" rel="noopener">
+                <div class="link-title">A celebration of queer love | Gourav &amp; Kahran</div>
+                <div class="link-meta">YouTube &middot; Mere Shadows</div>
+            </a>
+
+            <a href="https://www.youtube.com/watch?v=6NkWl9G2hiM" class="video-link" target="_blank" rel="noopener">
+                <div class="link-title">Breaking Taboos with Love | Full Wedding Documentary</div>
+                <div class="link-meta">YouTube &middot; Mere Shadows</div>
+            </a>
+
+            <a href="https://vimeo.com/720130241" class="video-link" target="_blank" rel="noopener">
+                <div class="link-title">Save The Date</div>
+                <div class="link-meta">Vimeo &middot; Invite Much</div>
+            </a>
+        </div>
+
+        <div class="wedding-section">
+            <h2>The elopement</h2>
+            <p>A year before Jaisalmer, Kahran and Gourav eloped in Telluride, Colorado &mdash; just the two of them, in the snow, in Indian dress.</p>
+            <a href="/elopement/" class="video-link">
+                <div class="link-title">Telluride, December 2021 &rarr;</div>
+                <div class="link-meta">Photos &amp; film from the mountains</div>
+            </a>
+        </div>
+
+        <div class="wedding-section">
+            <h2>The full story</h2>
+            <p>The complete wedding website &mdash; our story, the events, travel details, and all 194 photos across four days of celebration.</p>
+            <a href="/wedding/" class="video-link">
+                <div class="link-title">View the wedding site &rarr;</div>
+                <div class="link-meta">Archived from kahrangourav.squarespace.com</div>
+            </a>
+        </div>
+
+        <div class="wedding-section">
+            <h2>Vendors &amp; credits</h2>
+            <div class="wedding-credit" style="border-top: none; margin-top: 0; padding-top: 0;">
+                Venue: <a href="https://www.suryagarh.com/" target="_blank" rel="noopener">Suryagarh, Jaisalmer</a>
+                <br>
+                Outfits: <a href="https://www.antaragni.in/" target="_blank" rel="noopener">Antaragni</a> &middot; <a href="https://www.rathore.com/" target="_blank" rel="noopener">Raghvendra Rathore</a>
+                <br>
+                Cake: <a href="https://www.instagram.com/swatideroliya/" target="_blank" rel="noopener">Swati Deroliya</a>
+                <br>
+                Planning: <a href="https://www.themogracollective.com/" target="_blank" rel="noopener">The Mogra Collective</a>
+                <br>
+                Photography: <a href="https://www.namanverma.com/galleries/2024/10/17/kahran-amp-gourav" target="_blank" rel="noopener">Naman Verma</a>
+                <br>
+                Wedding film: <a href="https://www.mereshadows.in/" target="_blank" rel="noopener">Mere Shadows</a>
+                <br>
+                Press: <a href="https://www.vogue.in/gallery/a-celebration-of-queer-love-in-jaisalmer" target="_blank" rel="noopener">Vogue India</a> &middot; <a href="https://www.vogue.in/content/indian-couples-on-how-they-meaningfully-customised-their-wedding-rituals" target="_blank" rel="noopener">Vogue India</a> &middot; <a href="https://www.wedmegood.com/blog/heartwarming-lgbtq-wedding-photos-thatll-make-your-day/" target="_blank" rel="noopener">WedMeGood</a>
+            </div>
+        </div>
+
+    </main>
+
+    <nav>
+        <a href="/v1/" class="nav-name">kahran</a>
+        <a href="/poetry.html">poetry</a>
+        <a href="/photography.html">photography</a>
+        <a href="/projects.html">projects</a>
+        <a href="/lately/">lately</a>
+        <a href="/working-with-me.html">work with me</a>
+        <a href="/speaking.html">speaking</a>
+        <a href="/archive.html">archive</a>
+        <a href="/about.html">about</a>
+    </nav>
+    <script src="/poem-whisper.js"></script>
+</body>
+</html>
