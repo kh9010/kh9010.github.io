@@ -18,7 +18,11 @@ function run(cmd, args, cwd) {
   return { ok: r.status === 0, out: (r.stdout || "") + (r.stderr || "") };
 }
 
+// ONLY=<words> runs just the checks whose name contains them (for watching one check go red);
+// a full pass is always `node verify.mjs` with no ONLY.
+const ONLY = process.env.ONLY || "";
 function checkNow(name, fn) {
+  if (ONLY && !name.includes(ONLY)) return;
   let msg;
   try { msg = fn(); } catch (e) { console.log(`FAIL ${name}: ${e.message}`); process.exit(1); }
   console.log(`PASS ${name}: ${msg}`);
@@ -57,12 +61,20 @@ checkNow("the photograph never re-crops when the poem comes forward", () => {
   return `${oks} checks at 1200x800`;
 });
 
+checkNow("no picture is ever stretched, on any of six screens", () => {
+  const r = run("node", ["tools/test_photo_aspect.mjs"], ROOT);
+  const oks = (r.out.match(/^ok /gm) || []).length;
+  if (!r.ok) throw new Error(r.out.trim().split("\n").filter((l) => l.startsWith("FAIL")).join(" | ") || r.out.trim());
+  return `${oks} page-and-screen checks; ` + r.out.trim().split("\n").pop();
+});
+
 // ── studies rail checks (this branch): run after the site checks above, in one async pass ──
 // Starts its own study server on a free port with a throwaway picks file, drives headless Chrome over the DevTools protocol.
 import fs from 'node:fs'
 import os from 'node:os'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
+import { createRequire } from 'node:module'
 
 const S = p => path.join(ROOT, 'studies', p)
 const read = p => fs.readFileSync(p, 'utf8')
@@ -172,7 +184,7 @@ async function startChrome() {
   const go = async url => { await send('Page.enable'); await send('Page.navigate', { url }); for (let i = 0; i < 100; i++) { await sleep(100); if (await ev(`document.readyState === 'complete' && /\\d+ \\/ [1-9]/.test(document.querySelector('#count')?.textContent || '')`).catch(() => false)) return } throw new Error('page did not load ' + url) }
   // open a page fresh and collect what it throws or logs as an error
   const open = async url => { await send('Runtime.enable'); await send('Log.enable'); await send('Page.enable'); await send('Page.navigate', { url: 'about:blank' }); await sleep(200); errors.length = 0; await send('Page.navigate', { url }); for (let i = 0; i < 100; i++) { await sleep(100); if (await ev(`document.readyState === 'complete'`).catch(() => false)) break } }
-  return { ev, key, go, open, errors, close: () => { sock.close(); p.kill(); try { fs.rmSync(dir, { recursive: true, force: true }) } catch {} } }
+  return { ev, send, key, go, open, errors, close: () => { sock.close(); p.kill(); try { fs.rmSync(dir, { recursive: true, force: true }) } catch {} } }
 }
 
 let srv, chrome, picksFile
@@ -389,7 +401,86 @@ check('study 12: the walk reads its numbers from the dials and pictures take the
   return `${Object.keys(d).length} dials, 0 timing literals in the script; walk + height ruling ${oks} checks at 1200x800`
 })
 
+check('study 13: the walk as a chain, each picture answering the one before, every step named or honestly left blank', () => {
+  const h = read(S('13/index.html')), d = JSON.parse(read(S('13/defaults.json')))
+  assert.match(h, NOINDEX, 'study 13 is noindexed')
+  const f = spawnSync('python3', [S('13/features.py'), '--check'], { encoding: 'utf8' })
+  assert.equal(f.status, 0, 'features.json and the thumbs match the live catalogue and the files: ' + (f.stdout + f.stderr).trim())
+  const Chain = createRequire(import.meta.url)(S('13/chain.js'))
+  const P = JSON.parse(read(S('13/features.json'))).photos
+  const live = [...read(path.join(ROOT, 'photography.html')).matchAll(/\{ f: '([^']+)'/g)].map(m => m[1])
+  assert.deepEqual(P.map(p => p.f), live, 'the study walks exactly the live catalogue, nothing added or dropped')
+  // what is in the frame comes from the site's photo scoring (v2/scores-photos.json); the study's own file only fills its gaps
+  const base = new Set(Object.keys(JSON.parse(read(path.join(ROOT, 'v2/scores-photos.json'))).photos).map(k => k.split('/').pop()))
+  const extra = Object.keys(JSON.parse(read(S('13/scores-study.json'))).photos).map(k => k.split('/').pop())
+  assert.deepEqual(extra.filter(f => base.has(f)), [], 'the study scores only pictures the site scoring lacks')
+  assert.deepEqual(P.filter(p => !p.scored).map(p => p.f), [], 'every picture in the walk is scored')
+  const M = Chain.model(P), linkMin = +d['link-min']
+  const sets = Chain.sets(k => d[k])
+  let rnd = 1; const rand = () => (rnd = (rnd * 1664525 + 1013904223) >>> 0) / 4294967296
+  const out = []
+  for (const [name, w] of Object.entries(sets)) {
+    const o = Chain.path(M, w)
+    assert.deepEqual(o.slice().sort((a, b) => a - b), P.map((_, i) => i), name + ' visits every picture once')
+    assert.deepEqual(Chain.path(M, w), o, name + ' is the same every time')
+    let shuf = 0
+    for (let t = 0; t < 40; t++) { const s = P.map((_, i) => i); for (let i = s.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [s[i], s[j]] = [s[j], s[i]] } shuf += Chain.cost(M, w, s) / 40 }
+    const c = Chain.cost(M, w, o), named = o.slice(1).filter((j, k) => Chain.link(M, w, o[k], j, linkMin).word).length
+    assert(c < shuf * 0.75, `${name}: neighbours ${(c / 70).toFixed(2)} apart, a shuffle ${(shuf / 70).toFixed(2)}; a chain must be clearly closer than chance`)
+    assert(named >= 56, `${name}: only ${named} of 70 steps have a reason to show`)
+    out.push(`${name} ${(c / 70).toFixed(2)} vs shuffle ${(shuf / 70).toFixed(2)}, ${named}/70 named`)
+  }
+  assert.match(h, /: 'colour';/, 'colour is the study\'s default order')
+  return `${P.filter(p => base.has(p.f)).length} of ${P.length} scored by the site, ${extra.length} by the study; ` + out.join('; ')
+})
+
+// Kahran, 2026-10-28: "I want it by color. I love the mid tone transitions."
+check('study 13: the colour order favours mid-tone transitions and keeps the pale pictures together, against the weights it had before', () => {
+  const d = JSON.parse(read(S('13/defaults.json')))
+  for (const k of ['mid-weight', 'l-step', 'c-step', 'mid-lo', 'mid-hi', 'edge-max']) assert(k in d, 'dial ' + k)
+  const Chain = createRequire(import.meta.url)(S('13/chain.js'))
+  const M = Chain.model(JSON.parse(read(S('13/features.json'))).photos)
+  const lo = +d['mid-lo'], hi = +d['mid-hi']
+  const now = Chain.colourStats(M, Chain.path(M, Chain.sets(k => d[k]).colour), lo, hi)
+  const old = Chain.colourStats(M, Chain.path(M, Chain.sets(k => ({ 'mid-weight': 0, 'l-step': 0, 'c-step': 0 })[k] ?? d[k]).colour), lo, hi)
+  const s = (x) => `${x.midSteps} mid-tone steps, ${x.paleRuns} pale runs, ${x.jumps} jumps, mean step L ${x.dL.toFixed(1)} C ${x.dC.toFixed(1)}`
+  assert(now.midSteps >= old.midSteps + 8, `mid-tone steps ${now.midSteps}, before ${old.midSteps}`)
+  assert(now.paleRuns < old.paleRuns, `the ${now.pale} pale pictures fall in ${now.paleRuns} runs, before ${old.paleRuns}`)
+  assert(now.jumps <= old.jumps && now.dL < old.dL, `lightness steps ${now.dL.toFixed(1)} (${now.jumps} jumps), before ${old.dL.toFixed(1)} (${old.jumps})`)
+  return `now ${s(now)}; before ${s(old)}`
+})
+
+check('study 13: the graph shows every picture once, placed by colour, with the walk through them, at 1280 and 390', async () => {
+  await boot()
+  const P = JSON.parse(read(S('13/features.json'))).photos
+  const out = []
+  for (const w of [1280, 390]) {
+    await chrome.send('Emulation.setDeviceMetricsOverride', { width: w, height: 900, deviceScaleFactor: 1, mobile: w < 600 })
+    await chrome.open(srv.base + '/studies/13/?view=graph')
+    let ok = false; for (let i = 0; i < 80 && !ok; i++) { await sleep(100); ok = await chrome.ev(`document.querySelectorAll('.graph .node').length > 0`).catch(() => false) }
+    const g = await chrome.ev(`(() => { const ns = [...document.querySelectorAll('.graph .node')], files = ns.map(n => n.querySelector('image').getAttribute('href').replace('thumbs/', ''));
+      const svg = document.querySelector('.graph svg').getBoundingClientRect();
+      const walk = (document.querySelector('.graph .walk').getAttribute('d').match(/[ML]/g) || []).length;
+      ns[3].dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      const lit = document.querySelectorAll('.graph .node.on').length, word = document.querySelectorAll('.graph text.word').length, read = document.querySelector('.graph-read').textContent;
+      return { files, walk, lit, word, read, edges: document.querySelectorAll('.graph .edge').length, right: svg.right, sw: document.documentElement.scrollWidth } })()`)
+    assert.deepEqual(g.files.slice().sort(), P.map(p => p.f).sort(), `${w}: one node per picture in the catalogue (${g.files.length} of ${P.length})`)
+    assert.equal(g.walk, P.length, `${w}: the walk passes through every node`)
+    assert(g.lit >= 2 && g.word >= 1 && g.read.includes('→'), `${w}: a tap lights the neighbours and shows the joining word (${g.lit} lit, ${g.word} words, "${g.read}")`)
+    assert(g.sw <= w && g.right <= w, `${w}: no horizontal scroll (page ${g.sw}, graph to ${Math.round(g.right)})`)
+    assert.deepEqual(chrome.errors.filter(e => !/favicon|googletagmanager/.test(e)), [], `${w}: no console errors`)
+    out.push(`${w}: ${g.files.length} nodes, ${g.edges} edges, ${g.lit} lit on a tap`)
+  }
+  await chrome.send('Emulation.clearDeviceMetricsOverride')
+  const r1 = spawnSync(process.execPath, ['tools/test_photo_autoscroll.mjs'], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, PAGE: '/studies/13/?order=blend' } })
+  assert.equal(r1.status, 0, 'walk on the study: ' + (r1.stdout + r1.stderr).split('\n').filter(l => l.startsWith('FAIL')).join(' | '))
+  const a = spawnSync(process.execPath, ['tools/test_photo_aspect.mjs'], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, PAGES: '/studies/13/,/studies/13/?order=line&view=thread' } })
+  assert.equal(a.status, 0, 'no stretched picture on the study: ' + (a.stdout + a.stderr).split('\n').filter(l => l.startsWith('FAIL')).join(' | '))
+  return out.join('; ') + '; walk rules hold; no picture stretched at six screens'
+})
+
 for (const [name, fn, skip] of checks) {
+  if (ONLY && !name.includes(ONLY)) continue
   if (skip) { console.log(`SKIP ${name}: ${skip}`); continue }
   try { await boot(); console.log(`PASS ${name}: ${await fn()}`) }
   catch (e) { console.log(`FAIL ${name}: ${e.message}`); failed = true; break }
@@ -463,59 +554,6 @@ checkNow("every name and year on a study is already on the site", () => {
     }
   }
   return `${names} names and ${years} years checked against ${PUBLIC.length} public pages`;
-});
-
-checkNow("about.html is his desk picks as a site page: full meta set, the nav, only the pile and whispers as page JS, every name and year already public, links resolve", () => {
-  // Picked 2026-10-28 from Study 09; the old About lives on at /v1/about.html.
-  const h = readFileSync(path.join(ROOT, "about.html"), "utf8");
-  const meta = [["title", /<title>About — Kahran Singh<\/title>/], ["description", /<meta name="description" content="[^"]{40,}">/], ["canonical", /<link rel="canonical" href="https:\/\/kahransingh\.com\/about\.html">/], ["og:title", /<meta property="og:title" content="[^"]+">/], ["og:description", /<meta property="og:description" content="[^"]{40,}">/], ["og:type", /<meta property="og:type" content="website">/], ["og:url", /<meta property="og:url" content="https:\/\/kahransingh\.com\/about\.html">/], ["og:image", /<meta property="og:image" content="https:\/\/kahransingh\.com\/[^"]+">/], ["twitter:card", /<meta name="twitter:card" content="summary_large_image">/], ["twitter:title", /<meta name="twitter:title" content="[^"]+">/], ["twitter:description", /<meta name="twitter:description" content="[^"]{40,}">/], ["twitter:image", /<meta name="twitter:image" content="https:\/\/kahransingh\.com\/[^"]+">/], ["site stylesheet", /href="\/style\.css"/], ["nav with about current", /<a href="\/about\.html" class="active" aria-current="page">about<\/a>/], ["nav name to the current home", /<a href="\/" class="nav-name">kahran<\/a>/], ["v1 in the nav", /<a href="\/v1\/">v1<\/a>/], ["mobile header", /class="mobile-header"/], ["16px phone gutters", /@media \(max-width: 768px\) \{ main\.about \{ padding-left: 16px; padding-right: 16px; \} \}/]];
-  for (const [label, re] of meta) if (!re.test(h)) throw new Error(`about.html lacks ${label}`);
-  for (const k of ["og:image", "twitter:image"]) {
-    const u = new RegExp(`(?:property|name)="${k}" content="https://kahransingh\\.com(/[^"]+)"`).exec(h)[1];
-    if (!existsSync(path.join(ROOT, u))) throw new Error(`about.html ${k} ${u} is not on disk`);
-  }
-  // Scripts: the analytics, and since 28 Oct (Kahran: "I do kind of miss the word pile … the poem whispers should stay")
-  // the GSAP word pile and the shared poem whispers (the live poem count was cut on 28 Oct). Nothing else; the lenticular stays out.
-  const scripts = [...h.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)];
-  const allowed = (attrs, body) => /googletagmanager\.com/.test(attrs) || /gtag\('config'/.test(body) || attrs.includes('src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"') || attrs.includes('src="/poem-whisper.js"') || /^\s*\/\/ Word pile/.test(body) ;
-  for (const [, attrs, body] of scripts) if (!allowed(attrs, body)) throw new Error(`about.html carries a script beyond analytics, the word pile and the whispers: <script${attrs}>`);
-  for (const [label, re] of [["the word pile", /<div class="word-pile" id="word-pile">\s*<p class="quote-fallback">Sometimes I smile at myself \(in the mirror\)/], ["the poem whispers", /<script src="\/poem-whisper\.js"><\/script>/], ["the GSAP the old About used", /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/gsap@3\/dist\/gsap\.min\.js"><\/script>/]]) if (!re.test(h)) throw new Error(`about.html lacks ${label}`);
-  if (/lenticular|NVP_KAHRANXGOURAV_WEDDING-1377/.test(h)) throw new Error("the lenticular wedding photograph is back on about.html; Kahran let it go on 28 Oct");
-  const quotes = (/var quotes = \[([\s\S]*?)\];/.exec(h) || [, ""])[1].match(/'[^']+'/g) || [];
-  if (quotes.length !== 6) throw new Error(`the word pile has ${quotes.length} quotes, not the old About's six`);
-  const main = /<main[^>]*>([\s\S]*?)<\/main>/.exec(h)?.[1] || "";
-  // A link closing before punctuation leaves "Telluride , in": close that gap so an edited (link-free) pick still matches.
-  const plain = (s) => s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").replace(/ ([,.;:])/g, "$1").trim();
-  // The page is the desk's picks: every paragraph and year line of about-draft.html, verbatim.
-  const draft = readFileSync(path.join(ROOT, "studies", "09", "about-draft.html"), "utf8");
-  const pieces = [...draft.matchAll(/<p class="(?:lede|para|close)">([\s\S]*?)<\/p>|<span class="t">([\s\S]*?)<\/span><\/li>/g)].map((m) => plain(m[1] || m[2]));
-  const mainText = plain(main);
-  for (const p of pieces) if (!mainText.includes(p)) throw new Error(`about.html drops the picked line "${p.slice(0, 50)}…"`);
-  // Public-safe by construction, as for the studies: the old About counts as public, the new one does not vouch for itself.
-  const PUBLIC = ["cv.html", "projects.html", "working-with-me.html", "speaking.html", "archive.html", "poetry.html", "photography.html", "index.html", "v1/index.html", "v1/about.html", "wedding-celebration.html", "elopement/index.html", "context/index.html", "v2/home.js", "v2/data.json"];
-  const corpus = PUBLIC.map((f) => readFileSync(path.join(ROOT, f), "utf8")).join(" ").replace(/<[^>]+>/g, " ").toLowerCase();
-  const dict = new Set(readFileSync("/usr/share/dict/words", "utf8").split("\n").map((w) => w.toLowerCase()));
-  const text = main.replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/g, " ");
-  let names = 0, years = 0, links = 0;
-  for (const m of text.matchAll(/\b([A-Z][A-Za-z]+)\b/g)) {
-    if (dict.has(m[1].toLowerCase())) continue;
-    if (!corpus.includes(m[1].toLowerCase())) throw new Error(`about.html names "${m[1]}", which no other public page does`);
-    names++;
-  }
-  for (const m of text.matchAll(/\b(19|20)\d\d\b/g)) {
-    if (!corpus.includes(m[0])) throw new Error(`about.html says ${m[0]}, a year no other public page carries`);
-    years++;
-  }
-  for (const m of h.matchAll(/(?:href|src)="([^"#?]+)/g)) {
-    const u = m[1];
-    if (/^(https?:|mailto:)/.test(u)) continue;
-    let p = path.join(ROOT, u);
-    if (u.endsWith("/")) p = path.join(p, "index.html");
-    if (!existsSync(p)) throw new Error(`about.html: ${u} does not resolve`);
-    links++;
-  }
-  if (!existsSync(path.join(ROOT, "v1", "about.html"))) throw new Error("the old About is gone from /v1/about.html");
-  return `${meta.length} page rules, ${pieces.length} picked lines verbatim, ${names} names and ${years} years against ${PUBLIC.length} public pages, ${links} internal links on disk, old About at /v1/about.html`;
 });
 
 checkNow("tune: every dial lives in defaults.json and the CSS fallback equals it", () => {
