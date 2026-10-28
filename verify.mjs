@@ -57,12 +57,20 @@ checkNow("the photograph never re-crops when the poem comes forward", () => {
   return `${oks} checks at 1200x800`;
 });
 
+checkNow("no picture is ever stretched, on any of six screens", () => {
+  const r = run("node", ["tools/test_photo_aspect.mjs"], ROOT);
+  const oks = (r.out.match(/^ok /gm) || []).length;
+  if (!r.ok) throw new Error(r.out.trim().split("\n").filter((l) => l.startsWith("FAIL")).join(" | ") || r.out.trim());
+  return `${oks} page-and-screen checks; ` + r.out.trim().split("\n").pop();
+});
+
 // ── studies rail checks (this branch): run after the site checks above, in one async pass ──
 // Starts its own study server on a free port with a throwaway picks file, drives headless Chrome over the DevTools protocol.
 import fs from 'node:fs'
 import os from 'node:os'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
+import { createRequire } from 'node:module'
 
 const S = p => path.join(ROOT, 'studies', p)
 const read = p => fs.readFileSync(p, 'utf8')
@@ -139,12 +147,12 @@ skipIf(NO_MEDIA, 'the pile is whole', () => {
 function chromePath() {
   if (process.env.CHROME) return process.env.CHROME
   const base = path.join(os.homedir(), 'Library/Caches/ms-playwright')
-  if (!fs.existsSync(base)) { // Chrome for Testing's headless shell, as tools/test_photo_stays.mjs finds it
-    const cft = path.join(os.homedir(), '.cache/puppeteer/chrome-headless-shell')
-    return path.join(cft, fs.readdirSync(cft).sort().at(-1), 'chrome-headless-shell-mac-arm64/chrome-headless-shell')
-  }
-  const d = fs.readdirSync(base).filter(x => x.startsWith('chromium_headless_shell-')).sort().at(-1)
-  return path.join(base, d, 'chrome-headless-shell-mac-arm64/chrome-headless-shell')
+  // a Playwright cache can exist with its headless shell garbage-collected away, so fall back on either
+  const d = fs.existsSync(base) && fs.readdirSync(base).filter(x => x.startsWith('chromium_headless_shell-')).sort().at(-1)
+  if (d) return path.join(base, d, 'chrome-headless-shell-mac-arm64/chrome-headless-shell')
+  // Chrome for Testing's headless shell, as tools/test_photo_stays.mjs finds it
+  const cft = path.join(os.homedir(), '.cache/puppeteer/chrome-headless-shell')
+  return path.join(cft, fs.readdirSync(cft).sort().at(-1), 'chrome-headless-shell-mac-arm64/chrome-headless-shell')
 }
 async function startServer(picksFile) {
   const p = spawn(process.execPath, [S('server.cjs')], { env: { ...process.env, PORT: '0', PICKS: picksFile } })
@@ -344,21 +352,25 @@ check('study 09: the desk server takes a pick, refuses a malformed one and a for
   } finally { srv.kill(); fs.rmSync(tmp, { force: true }) }
 })
 
-check('study 10: Keeping track is a mechanism page like /context/: same meta set, no script, the four tools by their names, no place and no person', () => {
+check('study 10: Keeping track is a mechanism page like /context/: same meta set, no script, the four tools it was cut against, each still a Keeping track part by name, no place and no person', () => {
   const ctx = read(path.join(ROOT, 'context/index.html')), s10 = read(S('10/index.html'))
   for (const re of [/<title>[^<]+ — Kahran Singh<\/title>/, /<meta name="description" content="[^"]{40,}">/, /<link rel="canonical" href="https:\/\/kahransingh\.com\/[a-z-]+\/">/, /<meta name="theme-color" content="#fafaf8"/, /<meta name="theme-color" content="#171613"/, /<meta property="og:title"/, /<meta property="og:description"/, /<meta property="og:type" content="article">/, /<meta property="og:url"/, /<meta property="og:image"/, /<meta name="twitter:card" content="summary_large_image">/, /<meta name="twitter:title"/, /<meta name="twitter:description"/, /<meta name="twitter:image"/])
     assert(re.test(ctx) && re.test(s10), 'both pages carry ' + re.source.slice(0, 40))
   assert.match(s10, NOINDEX, 'a study is noindexed')
   assert.doesNotMatch(s10, /<script/, 'no JS on a mechanism page')
+  // Study 10 was cut against the five-idea wall (four Keeping track tools); the six-idea re-cut
+  // (2026-10-27) added meeting follow-ups (and a groomer, retired again 2026-10-28). A study stays as it was drawn, so its
+  // sections must still be Keeping track parts by name, in IDEAS order, not all of them.
   const parts = ideaParts('Keeping track'), h2s = [...s10.matchAll(/<h2 id="h-[a-z]+">([^<]+)<\/h2>/g)].map(m => m[1])
-  assert.deepEqual(h2s, parts, 'the sections are the IDEAS parts, by name and order')
+  assert.deepEqual(h2s, parts.filter(p => h2s.includes(p)), 'the sections are IDEAS parts, by name and in order')
+  assert.equal(h2s.length, 4, 'the study holds the four tools it was cut against')
   const text = plain(/<body>([\s\S]*)<\/body>/.exec(s10)[1])
   for (const place of ['New York', 'Bangalore', 'Seattle', 'Manhattan', 'Provincetown', 'Jaisalmer', 'Telluride', 'Boulder']) assert(!text.includes(place), 'never a location: ' + place)
   const PUBLIC = ['index.html', 'context/index.html', 'about.html', 'cv.html', 'v2/home.js'].map(f => read(path.join(ROOT, f))).join(' ').replace(/<[^>]+>/g, ' ').toLowerCase()
   const dict = new Set(read('/usr/share/dict/words').split('\n').map(w => w.toLowerCase()))
   let names = 0
   for (const m of text.matchAll(/\b([A-Z][A-Za-z]+)\b/g)) { const w = m[1].toLowerCase(); if (dict.has(w) || dict.has(w.replace(/s$/, ''))) continue; assert(PUBLIC.includes(m[1].toLowerCase()), `names "${m[1]}", which no public page does`); names++ }
-  return `14 meta rules shared with /context/, 0 scripts, sections ${parts.join(' · ')}, ${names} proper names all already public, 0 places`
+  return `14 meta rules shared with /context/, 0 scripts, sections ${h2s.join(' · ')}, ${names} proper names all already public, 0 places`
 })
 
 check('study 11: the home with the eight-word nav, in about.html\'s order, and the photograph still never re-crops', () => {
@@ -383,6 +395,41 @@ check('study 12: the walk reads its numbers from the dials and pictures take the
   const oks = (r.stdout.match(/^ok /gm) || []).length
   assert.equal(r.status, 0, (r.stdout + r.stderr).split('\n').filter(l => l.startsWith('FAIL')).join(' | '))
   return `${Object.keys(d).length} dials, 0 timing literals in the script; walk + height ruling ${oks} checks at 1200x800`
+})
+
+check('study 13: the walk as a chain, each picture answering the one before, every step named or honestly left blank', () => {
+  const h = read(S('13/index.html')), d = JSON.parse(read(S('13/defaults.json')))
+  assert.match(h, NOINDEX, 'study 13 is noindexed')
+  const f = spawnSync('python3', [S('13/features.py'), '--check'], { encoding: 'utf8' })
+  assert.equal(f.status, 0, 'features.json matches the live catalogue and the files: ' + (f.stdout + f.stderr).trim())
+  const Chain = createRequire(import.meta.url)(S('13/chain.js'))
+  const P = JSON.parse(read(S('13/features.json'))).photos
+  const live = [...read(path.join(ROOT, 'photography.html')).matchAll(/\{ f: '([^']+)'/g)].map(m => m[1])
+  assert.deepEqual(P.map(p => p.f), live, 'the study walks exactly the live catalogue, nothing added or dropped')
+  const M = Chain.model(P), W = {}
+  for (const k of Chain.KEYS) W[k] = +d['w-' + k]
+  const lead = +d.lead, linkMin = +d['link-min']
+  const sets = { colour: { ...W, colour: W.colour * lead, tone: W.tone * lead }, line: { ...W, lines: W.lines * lead, horizon: W.horizon * lead, layout: W.layout * lead }, blend: W }
+  let rnd = 1; const rand = () => (rnd = (rnd * 1664525 + 1013904223) >>> 0) / 4294967296
+  const out = []
+  for (const [name, w] of Object.entries(sets)) {
+    const o = Chain.path(M, w)
+    assert.deepEqual(o.slice().sort((a, b) => a - b), P.map((_, i) => i), name + ' visits every picture once')
+    assert.deepEqual(Chain.path(M, w), o, name + ' is the same every time')
+    let shuf = 0
+    for (let t = 0; t < 40; t++) { const s = P.map((_, i) => i); for (let i = s.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [s[i], s[j]] = [s[j], s[i]] } shuf += Chain.cost(M, w, s) / 40 }
+    const c = Chain.cost(M, w, o), named = o.slice(1).filter((j, k) => Chain.link(M, w, o[k], j, linkMin).word).length
+    assert(c < shuf * 0.75, `${name}: neighbours ${(c / 70).toFixed(2)} apart, a shuffle ${(shuf / 70).toFixed(2)}; a chain must be clearly closer than chance`)
+    assert(named >= 56, `${name}: only ${named} of 70 steps have a reason to show`)
+    out.push(`${name} ${(c / 70).toFixed(2)} vs shuffle ${(shuf / 70).toFixed(2)}, ${named}/70 named`)
+  }
+  for (const [pg, extra] of [['/studies/13/?order=blend', {}]]) {
+    const r = spawnSync(process.execPath, ['tools/test_photo_autoscroll.mjs'], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, PAGE: pg, ...extra } })
+    assert.equal(r.status, 0, 'walk on the study: ' + (r.stdout + r.stderr).split('\n').filter(l => l.startsWith('FAIL')).join(' | '))
+  }
+  const a = spawnSync(process.execPath, ['tools/test_photo_aspect.mjs'], { cwd: ROOT, encoding: 'utf8', env: { ...process.env, PAGES: '/studies/13/?order=colour,/studies/13/?order=line&view=thread' } })
+  assert.equal(a.status, 0, 'no stretched picture on the study: ' + (a.stdout + a.stderr).split('\n').filter(l => l.startsWith('FAIL')).join(' | '))
+  return out.join('; ') + '; walk rules hold; no picture stretched at six screens'
 })
 
 for (const [name, fn, skip] of checks) {
@@ -493,6 +540,20 @@ checkNow("every link out of a study resolves", () => {
     }
   }
   return `${n_int} internal targets exist on disk, ${n_ext} external left to the link audit`;
+});
+
+checkNow("the wall is six ideas with Home the sixth, the noscript copy agrees, and the system's working name never shows", () => {
+  const r = run("node", ["tools/test_wall.mjs"], ROOT);
+  const oks = (r.out.match(/^ok /gm) || []).length;
+  if (!r.ok) throw new Error(r.out.trim().split("\n").filter((l) => l.startsWith("FAIL")).join(" | ") || r.out.trim());
+  return `${oks} checks, rendered at 1200x800 and 390x844`;
+});
+
+checkNow("Right now: the tools line still opens the wall, and the lines after it are what else he is making", () => {
+  const r = run("node", ["tools/test_right_now.mjs"], ROOT);
+  const oks = (r.out.match(/^ok /gm) || []).length;
+  if (!r.ok) throw new Error(r.out.trim().split("\n").filter((l) => l.startsWith("FAIL")).join(" | ") || r.out.trim());
+  return `${oks} checks, rendered at 1200x800 and 390x844`;
 });
 
 checkNow("idea details: coverage, audited graph, public provenance", () => {
