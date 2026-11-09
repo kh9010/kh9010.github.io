@@ -5,8 +5,16 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://kahransingh.com/v2/</loc>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://kahransingh.com/v1/</loc>
     <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://kahransingh.com/v1/about.html</loc>
+    <priority>0.3</priority>
   </url>
   <url>
     <loc>https://kahransingh.com/poetry.html</loc>
@@ -137,10 +145,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://kahransingh.com/poems/a-house-before-house.html</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://kahransingh.com/poems/anuraag-oh-anuraag.html</loc>
     <priority>0.6</priority>
   </url>
@@ -174,10 +178,6 @@
   </url>
   <url>
     <loc>https://kahransingh.com/poems/blood-oh-once-you-called.html</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://kahransingh.com/poems/burned-invitingly.html</loc>
     <priority>0.6</priority>
   </url>
   <url>
@@ -250,10 +250,6 @@
   </url>
   <url>
     <loc>https://kahransingh.com/poems/hey-you-tree-there.html</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://kahransingh.com/poems/his-hair-was-curly.html</loc>
     <priority>0.6</priority>
   </url>
   <url>
@@ -374,10 +370,6 @@
   </url>
   <url>
     <loc>https://kahransingh.com/poems/platitudes-of-suffering.html</loc>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://kahransingh.com/poems/purple-dragon.html</loc>
     <priority>0.6</priority>
   </url>
   <url>

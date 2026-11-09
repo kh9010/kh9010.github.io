@@ -1,3 +1,7 @@
+// Every poem page loads this file, so it also brings in /track.js, which
+// counts the clicks on the related poems below (see track.js).
+(function () { var s = document.createElement('script'); s.src = '/track.js'; document.head.appendChild(s); })();
+
 // Poem theme data — maps each poem to its themes and related poems
 const poemData = {
     'have-you-ever-seen': { themes: ['nature', 'wonder'], title: 'Have you ever seen' },
@@ -46,7 +50,6 @@ const poemData = {
     'out-of-many-one': { themes: ['identity', 'love'], title: 'Out of many, one' },
     'today-birds': { themes: ['mortality', 'nature'], title: 'Today' },
     'did-you-know': { themes: ['wonder', 'nature', 'identity'], title: 'Did you know there are spiders with only 5 legs' },
-    'burned-invitingly': { themes: ['identity', 'mortality'], title: 'Burned invitingly' },
     'these-days-are-gone': { themes: ['mortality'], title: 'These days are gone' },
     'the-light-sings': { themes: ['nature'], title: 'The light sings to me in the morning' },
     'xoxo': { themes: ['love'], title: 'Xoxo' },
@@ -83,7 +86,6 @@ const poemData = {
     'oh-the-horror-i-say': { themes: ['wonder', 'identity'], title: 'Oh the horror I say' },
     'out-to-play-he-calls-them': { themes: ['nature', 'wonder'], title: 'Out to play He calls them' },
     'late-why-so-late': { themes: ['love', 'identity'], title: 'Late why so late' },
-    'his-hair-was-curly': { themes: ['love', 'identity'], title: 'His hair was curly' },
     'to-touch-in-a-way': { themes: ['love', 'identity'], title: 'To touch, in a way' },
     'hey-you-there-hey-you-here': { themes: ['love', 'identity'], title: 'Hey you there, hey you here' },
     'teental': { themes: ['identity', 'place', 'wonder'], title: 'Teental' },
@@ -95,8 +97,6 @@ const poemData = {
     'hey': { themes: ['love', 'identity'], title: 'hey' },
     'i-came-out': { themes: ['identity', 'nature'], title: 'I came out' },
     'wrestle': { themes: ['identity', 'mortality'], title: 'wrestle' },
-    'a-house-before-house': { themes: ['identity', 'place'], title: 'A house before house' },
-    'purple-dragon': { themes: ['identity', 'mortality'], title: 'Purple Dragon' },
 };
 
 const themeLabels = {

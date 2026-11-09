@@ -370,7 +370,7 @@ check('study 10: Keeping track is a mechanism page like /context/: same meta set
   assert.equal(h2s.length, 4, 'the study holds the four tools it was cut against')
   const text = plain(/<body>([\s\S]*)<\/body>/.exec(s10)[1])
   for (const place of ['New York', 'Bangalore', 'Seattle', 'Manhattan', 'Provincetown', 'Jaisalmer', 'Telluride', 'Boulder']) assert(!text.includes(place), 'never a location: ' + place)
-  const PUBLIC = ['index.html', 'context/index.html', 'about.html', 'cv.html', 'v2/home.js'].map(f => read(path.join(ROOT, f))).join(' ').replace(/<[^>]+>/g, ' ').toLowerCase()
+  const PUBLIC = ['index.html', 'v2/index.html', 'context/index.html', 'about.html', 'cv.html', 'v2/home.js'].map(f => read(path.join(ROOT, f))).join(' ').replace(/<[^>]+>/g, ' ').toLowerCase()
   const dict = new Set(read('/usr/share/dict/words').split('\n').map(w => w.toLowerCase()))
   let names = 0
   for (const m of text.matchAll(/\b([A-Z][A-Za-z]+)\b/g)) { const w = m[1].toLowerCase(); if (dict.has(w) || dict.has(w.replace(/s$/, ''))) continue; assert(PUBLIC.includes(m[1].toLowerCase()), `names "${m[1]}", which no public page does`); names++ }
@@ -494,7 +494,7 @@ import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 const STUDIES = readdirSync(path.join(ROOT, "studies")).filter((d) => /^\d\d$/.test(d)).sort();
 const SINCE06 = STUDIES.filter((n) => n >= "06"); // 01–05 are the inspiration and gem studies, checked above
 const ABOUT = ["06", "07", "08"];                      // the About pages proper; 09 is their desk
-const TUNED = SINCE06.filter((n) => n !== "10");       // 10 is a mechanism page like /context/: no JS, so no ?tune (its dials arrive with its promotion)
+const TUNED = SINCE06.filter((n) => n !== "10" && n !== "15"); // 10 is a mechanism page like /context/: no JS, so no ?tune (its dials arrive with its promotion); 15 is the doors data, judged by reading, no look or timing to tune
 const studyHtml = (n) => readFileSync(path.join(ROOT, "studies", n, "index.html"), "utf8");
 
 checkNow("the rail matches the studies and opens on the newest", () => {
@@ -535,7 +535,7 @@ checkNow("no instruction text and nothing a mock would not carry", () => {
 
 checkNow("every name and year on a study is already on the site", () => {
   // Public-safe by construction: a study may only say what the public pages already say.
-  const PUBLIC = ["cv.html", "projects.html", "working-with-me.html", "speaking.html", "archive.html", "poetry.html", "photography.html", "index.html", "v1/index.html", "wedding-celebration.html", "elopement/index.html", "context/index.html", "v2/home.js", "v2/data.json"];
+  const PUBLIC = ["cv.html", "projects.html", "working-with-me.html", "speaking.html", "archive.html", "poetry.html", "photography.html", "index.html", "v2/index.html", "v1/index.html", "wedding-celebration.html", "elopement/index.html", "context/index.html", "v2/home.js", "v2/data.json"];
   const corpus = PUBLIC.map((f) => readFileSync(path.join(ROOT, f), "utf8")).join(" ").replace(/<[^>]+>/g, " ").toLowerCase();
   const dict = new Set(readFileSync("/usr/share/dict/words", "utf8").split("\n").map((w) => w.toLowerCase()));
   let names = 0, years = 0;
@@ -556,9 +556,87 @@ checkNow("every name and year on a study is already on the site", () => {
   return `${names} names and ${years} years checked against ${PUBLIC.length} public pages`;
 });
 
+checkNow("about.html is his desk picks as a site page: full meta set, the nav, only the pile and whispers as page JS, every name and year already public, links resolve", () => {
+  // Picked 2026-10-28 from Study 09; the old About lives on at /v1/about.html.
+  const h = readFileSync(path.join(ROOT, "about.html"), "utf8");
+  const meta = [["title", /<title>About — Kahran Singh<\/title>/], ["description", /<meta name="description" content="[^"]{40,}">/], ["canonical", /<link rel="canonical" href="https:\/\/kahransingh\.com\/about\.html">/], ["og:title", /<meta property="og:title" content="[^"]+">/], ["og:description", /<meta property="og:description" content="[^"]{40,}">/], ["og:type", /<meta property="og:type" content="website">/], ["og:url", /<meta property="og:url" content="https:\/\/kahransingh\.com\/about\.html">/], ["og:image", /<meta property="og:image" content="https:\/\/kahransingh\.com\/[^"]+">/], ["twitter:card", /<meta name="twitter:card" content="summary_large_image">/], ["twitter:title", /<meta name="twitter:title" content="[^"]+">/], ["twitter:description", /<meta name="twitter:description" content="[^"]{40,}">/], ["twitter:image", /<meta name="twitter:image" content="https:\/\/kahransingh\.com\/[^"]+">/], ["site stylesheet", /href="\/style\.css"/], ["nav with about current", /<a href="\/about\.html" class="active" aria-current="page">about<\/a>/], ["nav name to the current home", /<a href="\/" class="nav-name">kahran<\/a>/], ["v1 in the nav", /<a href="\/v1\/">v1<\/a>/], ["mobile header", /class="mobile-header"/], ["16px phone gutters", /@media \(max-width: 768px\) \{ main\.about \{ padding-left: 16px; padding-right: 16px; \} \}/]];
+  for (const [label, re] of meta) if (!re.test(h)) throw new Error(`about.html lacks ${label}`);
+  for (const k of ["og:image", "twitter:image"]) {
+    const u = new RegExp(`(?:property|name)="${k}" content="https://kahransingh\\.com(/[^"]+)"`).exec(h)[1];
+    if (!existsSync(path.join(ROOT, u))) throw new Error(`about.html ${k} ${u} is not on disk`);
+  }
+  // Scripts: the analytics, and since 28 Oct (Kahran: "I do kind of miss the word pile … the poem whispers should stay")
+  // the GSAP word pile and the shared poem whispers (the live poem count was cut on 28 Oct). Nothing else; the lenticular stays out.
+  const scripts = [...h.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)];
+  // /track.js is analytics too: the clicks that open something, sent as events (3 Nov).
+  const allowed = (attrs, body) => /googletagmanager\.com/.test(attrs) || /gtag\('config'/.test(body) || attrs.includes('src="/track.js"') || attrs.includes('src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"') || attrs.includes('src="/poem-whisper.js"') || /^\s*\/\/ Word pile/.test(body) ;
+  for (const [, attrs, body] of scripts) if (!allowed(attrs, body)) throw new Error(`about.html carries a script beyond analytics (with /track.js), the word pile and the whispers: <script${attrs}>`);
+  for (const [label, re] of [["the word pile", /<div class="word-pile" id="word-pile">\s*<p class="quote-fallback">Sometimes I smile at myself \(in the mirror\)/], ["the poem whispers", /<script src="\/poem-whisper\.js"><\/script>/], ["the GSAP the old About used", /<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/gsap@3\/dist\/gsap\.min\.js"><\/script>/]]) if (!re.test(h)) throw new Error(`about.html lacks ${label}`);
+  if (/lenticular|NVP_KAHRANXGOURAV_WEDDING-1377/.test(h)) throw new Error("the lenticular wedding photograph is back on about.html; Kahran let it go on 28 Oct");
+  const quotes = (/var quotes = \[([\s\S]*?)\];/.exec(h) || [, ""])[1].match(/'[^']+'/g) || [];
+  if (quotes.length !== 6) throw new Error(`the word pile has ${quotes.length} quotes, not the old About's six`);
+  const main = /<main[^>]*>([\s\S]*?)<\/main>/.exec(h)?.[1] || "";
+  // A link closing before punctuation leaves "Telluride , in": close that gap so an edited (link-free) pick still matches.
+  const plain = (s) => s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").replace(/ ([,.;:])/g, "$1").trim();
+  // The page is the desk's picks: every paragraph and year line of about-draft.html, verbatim.
+  const draft = readFileSync(path.join(ROOT, "studies", "09", "about-draft.html"), "utf8");
+  const pieces = [...draft.matchAll(/<p class="(?:lede|para|close)">([\s\S]*?)<\/p>|<span class="t">([\s\S]*?)<\/span><\/li>/g)].map((m) => plain(m[1] || m[2]));
+  const mainText = plain(main);
+  for (const p of pieces) if (!mainText.includes(p)) throw new Error(`about.html drops the picked line "${p.slice(0, 50)}…"`);
+  // Public-safe by construction, as for the studies: the old About counts as public, the new one does not vouch for itself.
+  const PUBLIC = ["cv.html", "projects.html", "working-with-me.html", "speaking.html", "archive.html", "poetry.html", "photography.html", "index.html", "v2/index.html", "v1/index.html", "v1/about.html", "wedding-celebration.html", "elopement/index.html", "context/index.html", "v2/home.js", "v2/data.json"];
+  const corpus = PUBLIC.map((f) => readFileSync(path.join(ROOT, f), "utf8")).join(" ").replace(/<[^>]+>/g, " ").toLowerCase();
+  const dict = new Set(readFileSync("/usr/share/dict/words", "utf8").split("\n").map((w) => w.toLowerCase()));
+  const text = main.replace(/<[^>]+>/g, " ").replace(/&[a-z]+;/g, " ");
+  let names = 0, years = 0, links = 0;
+  for (const m of text.matchAll(/\b([A-Z][A-Za-z]+)\b/g)) {
+    if (dict.has(m[1].toLowerCase())) continue;
+    if (!corpus.includes(m[1].toLowerCase())) throw new Error(`about.html names "${m[1]}", which no other public page does`);
+    names++;
+  }
+  for (const m of text.matchAll(/\b(19|20)\d\d\b/g)) {
+    if (!corpus.includes(m[0])) throw new Error(`about.html says ${m[0]}, a year no other public page carries`);
+    years++;
+  }
+  for (const m of h.matchAll(/(?:href|src)="([^"#?]+)/g)) {
+    const u = m[1];
+    if (/^(https?:|mailto:)/.test(u)) continue;
+    let p = path.join(ROOT, u);
+    if (u.endsWith("/")) p = path.join(p, "index.html");
+    if (!existsSync(p)) throw new Error(`about.html: ${u} does not resolve`);
+    links++;
+  }
+  if (!existsSync(path.join(ROOT, "v1", "about.html"))) throw new Error("the old About is gone from /v1/about.html");
+  return `${meta.length} page rules, ${pieces.length} picked lines verbatim, ${names} names and ${years} years against ${PUBLIC.length} public pages, ${links} internal links on disk, old About at /v1/about.html`;
+});
+
+/* Studies 14 on are canvas/script pieces (the stone, the crossing): a dial is
+   read by CSS (its fallback must equal defaults.json) or by script (the key
+   quoted in one of the study's own .html/.js files). Every dial is read
+   somewhere; the study loads tune.js. 06–13 keep the CSS-only rule above. */
+function scriptDials(n) {
+  const dir = path.join(ROOT, "studies", n);
+  const f = path.join(dir, "defaults.json");
+  if (!existsSync(f)) throw new Error(`study ${n} has no defaults.json`);
+  const d = JSON.parse(readFileSync(f, "utf8"));
+  const src = readdirSync(dir).filter((x) => /\.(html|js|mjs)$/.test(x) && x !== "check.mjs" && x !== "tune.js")
+    .map((x) => readFileSync(path.join(dir, x), "utf8")).join("\n");
+  const css = new Map([...src.matchAll(/var\(--([a-z0-9-]+),\s*([^)]+)\)/g)].map((m) => [m[1], m[2].trim()]));
+  for (const [k, v] of Object.entries(d)) {
+    if (css.has(k)) { if (Number(css.get(k)) !== Number(v) && css.get(k) !== String(v)) throw new Error(`study ${n}: "${k}" falls back to ${css.get(k)} in CSS, defaults.json says ${v}`); continue; }
+    if (src.includes(`var(--${k})`)) continue; // no fallback: the value only ever comes from defaults.json via tune.js
+    const decl = new RegExp(`--${k}:\\s*([^;]+);`).exec(src);
+    if (decl) { if (Number(decl[1]) !== Number(v) && decl[1].trim() !== String(v)) throw new Error(`study ${n}: --${k} is ${decl[1].trim()} in CSS, defaults.json says ${v}`); continue; }
+    if (!new RegExp(`['"\`]${k.replace(/[-]/g, "\\-")}['"\`]`).test(src)) throw new Error(`study ${n}: "${k}" is in defaults.json but nothing reads it`);
+  }
+  if (!/<script[^>]+src="[^"]*tune\.js"/.test(src)) throw new Error(`study ${n} does not load tune.js`);
+  return Object.keys(d).length;
+}
+
 checkNow("tune: every dial lives in defaults.json and the CSS fallback equals it", () => {
   let dials = 0;
   for (const n of TUNED) {
+    if (n >= "14") { dials += scriptDials(n); continue; }
     const f = path.join(ROOT, "studies", n, "defaults.json");
     if (!existsSync(f)) throw new Error(`study ${n} has no defaults.json`);
     const d = JSON.parse(readFileSync(f, "utf8"));
@@ -580,7 +658,8 @@ checkNow("every link out of a study resolves", () => {
   for (const n of SINCE06) {
     for (const m of studyHtml(n).matchAll(/(?:href|src)="([^"#?]+)/g)) {
       const u = m[1];
-      if (/^(https?:|mailto:)/.test(u)) { n_ext++; continue; }
+      if (u.includes("${")) continue; // a template literal in the page's script, built at run time, not a link on disk
+      if (/^(https?:|mailto:|data:)/.test(u)) { n_ext++; continue; }
       let p = u.startsWith("/") ? path.join(ROOT, u) : path.join(ROOT, "studies", n, u);
       if (p.endsWith("/")) p = path.join(p, "index.html");
       if (!existsSync(p)) throw new Error(`study ${n}: ${u} does not resolve`);
@@ -590,24 +669,93 @@ checkNow("every link out of a study resolves", () => {
   return `${n_int} internal targets exist on disk, ${n_ext} external left to the link audit`;
 });
 
-checkNow("the wall is six ideas with Home the sixth, the noscript copy agrees, and the system's working name never shows", () => {
+// Kahran, 7 Nov 2026: poems out for submission come off the site; a study built before that
+// carried one back in its door data (26, merged 8 Nov). Every poem a study's data can reach must
+// still be a page on the site.
+checkNow("no study reaches a poem that is off the site", () => {
+  const live = new Set(readdirSync(path.join(ROOT, "poems")).filter((f) => f.endsWith(".html")).map((f) => f.slice(0, -5)));
+  let n = 0, files = 0;
+  const walk = (x, where) => {
+    if (Array.isArray(x)) return x.forEach((v) => walk(v, where));
+    if (!x || typeof x !== "object") return;
+    for (const [k, v] of Object.entries(x)) {
+      const slugs = k === "poems" && Array.isArray(v) ? v.filter((s) => typeof s === "string") : (k === "poem" || k === "slug") && typeof v === "string" ? [v] : [];
+      for (const s of slugs) { if (s.includes("/") || s.includes(" ")) continue; n++; if (!live.has(s)) throw new Error(`${where}: "${s}" is not a poem on the site`); }
+      walk(v, where);
+    }
+  };
+  for (const n2 of SINCE06) {
+    const dir = path.join(ROOT, "studies", n2);
+    for (const f of readdirSync(dir).filter((f) => f.endsWith(".json"))) { files++; walk(JSON.parse(readFileSync(path.join(dir, f), "utf8")), `studies/${n2}/${f}`); }
+  }
+  return `${n} poem references in ${files} study data files, all pages on the site`;
+});
+
+checkNow("the wall is six ideas with Home the sixth, the noscript copy agrees, and the system's working name never shows (the wall's home, /v2/)", () => {
   const r = run("node", ["tools/test_wall.mjs"], ROOT);
   const oks = (r.out.match(/^ok /gm) || []).length;
   if (!r.ok) throw new Error(r.out.trim().split("\n").filter((l) => l.startsWith("FAIL")).join(" | ") || r.out.trim());
   return `${oks} checks, rendered at 1200x800 and 390x844`;
 });
 
-checkNow("Right now: the tools line still opens the wall; each line after it opens a short note whose link lives in v2/right-now.json", () => {
+checkNow("Right now (on /v2/ only): the tools line still opens the wall; each line after it opens a short note whose link lives in v2/right-now.json", () => {
   const r = run("node", ["tools/test_right_now.mjs"], ROOT);
   const oks = (r.out.match(/^ok /gm) || []).length;
   if (!r.ok) throw new Error(r.out.trim().split("\n").filter((l) => l.startsWith("FAIL")).join(" | ") || r.out.trim());
   return `${oks} checks, rendered at 1200x800 and 390x844`;
 });
 
+checkNow("the home is the stone: every facet yields and nothing lies over the poem, the crossing lands on the next masses cut, the line and the chain recounted, the tools and the years reached", () => {
+  const r = run("node", ["tools/test_home.mjs"], ROOT);
+  if (!r.ok) throw new Error(r.out.trim().split("\n").filter((l) => l.startsWith("FAIL")).slice(0, 4).join(" | ") || r.out.trim().split("\n").slice(-4).join(" | "));
+  return r.out.trim().split("\n").filter((l) => l.startsWith("PASS the home")).map((l) => l.replace(/^PASS the home: /, "")).join("; ");
+});
+
 checkNow("idea details: coverage, audited graph, public provenance", () => {
   const r = run("node", ["tools/test_idea_details.mjs"], ROOT);
   if (!r.ok) throw new Error(r.out.trim().split("\n").slice(-6).join(" | "));
   return r.out.trim().split("\n").filter((l) => l.startsWith("PASS")).map((l) => l.replace(/^PASS /, "")).join("; ");
+});
+
+checkNow("every page carries the Analytics tag, and track.js still finds what it counts", () => {
+  // Page views need the gtag snippet on every page a visitor can land on. Exempt, each for a reason:
+  //   studies/NN/  working drafts, opened inside the studies rail (which is tagged), so a tag there would count twice;
+  //   redirect stubs (meta refresh) hand the visitor on to a tagged page;
+  //   lately/record/  tools/weekly_record.py rewrites it each week from its template, which carries the tag, and refuses
+  //                   to overwrite a hand edit, so it picks the tag up on the next run rather than by hand.
+  const TAG = /googletagmanager\.com\/gtag\/js\?id=G-H63H3KD6WQ[\s\S]*gtag\('config', 'G-H63H3KD6WQ'\)/;
+  const pages = [];
+  (function walk(dir) {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (e.name.startsWith(".") || e.name === "node_modules") continue;
+      const p = path.join(dir, e.name);
+      if (e.isDirectory()) walk(p); else if (e.name.endsWith(".html")) pages.push(path.relative(ROOT, p));
+    }
+  })(ROOT);
+  let tagged = 0, exempt = 0;
+  for (const rel of pages) {
+    const h = readFileSync(path.join(ROOT, rel), "utf8");
+    if (/^studies\/\d/.test(rel) || /http-equiv=["']refresh/i.test(h) || rel === "lately/record/index.html") { exempt++; continue; }
+    if (!TAG.test(h)) throw new Error(`${rel} has no Google Analytics tag (G-H63H3KD6WQ)`);
+    tagged++;
+  }
+  if (!/G-H63H3KD6WQ/.test(readFileSync(path.join(TOOLS, "weekly_record.py"), "utf8"))) throw new Error("tools/weekly_record.py's page template lost the Analytics tag");
+  // track.js reads the markup rather than hooking the page scripts, so a renamed class would silently stop counting.
+  const has = (f, needle, what) => { if (!readFileSync(path.join(ROOT, f), "utf8").includes(needle)) throw new Error(`${f} no longer has ${what}, which track.js counts`); };
+  has("v2/home.js", "'idea-trigger'", "the tile button .idea-trigger");
+  has("v2/home.js", "'idea-detail ", "the panel .idea-detail");
+  has("v2/index.html", 'id="doing-tools"', "the flow view's line #doing-tools");
+  has("v2/index.html", 'class="doing-item" data-line=', "the Right now notes .doing-item[data-line]");
+  has("v3/stone.js", "new CustomEvent('home:track'", "the stone's home:track events");
+  has("about.html", 'id="word-pile"', "the quote pile #word-pile");
+  has("v1/about.html", 'id="word-pile"', "the quote pile #word-pile");
+  has("poems/related.js", "'stanza explore-slide'", "the related poems .explore-slide");
+  has("photography.html", 'id="lightbox"', "the lightbox #lightbox");
+  has("photography.html", 'id="lightbox-img"', "the lightbox picture #lightbox-img");
+  has("photography.html", "lightbox.classList.add('active')", "the lightbox's open state .active");
+  for (const f of ["index.html", "v2/index.html", "about.html", "v1/about.html", "photography.html"]) has(f, '<script src="/track.js"></script>', "<script src=\"/track.js\">");
+  has("poems/related.js", "s.src = '/track.js'", "the line that loads /track.js on every poem");
+  return `${tagged} pages tagged, ${exempt} exempt (study drafts, redirects, the weekly record copy); track.js loaded on the home (the stone and /v2/), both Abouts, the photography page and every poem`;
 });
 
 process.exit(0)
