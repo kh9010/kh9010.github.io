@@ -15,7 +15,8 @@
 //       come back and light where the chain reads them; 34: every count, measure, reading and label in the chain recounted in Node;
 //     every drawn facet yields (one the tools, one the date, the rest his work, verbatim, its basis recounted at the region it sits on);
 //     words of any length at any facet keep clear of the poem, the name and the caption (30's and 37's worst case);
-//     40: the six names on the facet nearest the where line, every idea and tool reached, IDEAS verbatim;
+//     40: the six names WHOLLY inside the facet nearest the where line that can hold them (every photograph x two poems x five screens,
+//       fresh and crossed, besides the live loads), every idea and tool reached, IDEAS verbatim;
 //     38 c: the date is the photograph's own, in a facet where it reads clear, and flies the photograph into its year in the About;
 //     39: a crossing through a door line (and, at 1440, a facet's last tap) walked frame by frame lands on the next photograph's masses cut
 //       as 33 counts it; reduced motion crossfades and no facet moves;
@@ -117,7 +118,7 @@ const readings = {}; { let cur = null; for (const raw of read('v3/body/readings.
 const conceptsOfLine = (slug, lines) => new Set((readings[slug] || []).filter(r => r.phrase.some(p => lines.some(l => l.includes(p)))).flatMap(r => r.concepts))
 const conceptsOfPoem = slug => new Set((readings[slug] || []).flatMap(r => r.concepts))
 const conceptsOfPhoto = src => (IDEAS21.photos[src.split('/').pop().replace(/\.[a-z]+$/i, '')] || '').split(/\s+/).filter(Boolean)
-const aboutYears = [...read('about.html').matchAll(/<li><b>([^<]+)<\/b><span>([\s\S]*?)<\/span><\/li>/g)].map(m => ({ y: m[1].trim(), text: asRead(m[2]) }))
+const aboutYears = [...read('v2/about.html').matchAll(/<li><b>([^<]+)<\/b><span>([\s\S]*?)<\/span><\/li>/g)].map(m => ({ y: m[1].trim(), text: asRead(m[2]) }))
 
 /* the check's own reading of where a facet sits (33's regions at its centre), and of 28's regions */
 const REGION_WORDS = { eye: 'see seen saw seeing eyes eye look looked looking watch watched watching gaze face mirror', sky: 'sky skies cloud clouds heaven heavens moon stars star birds bird wind air blue fly flying rain',
@@ -188,7 +189,7 @@ function stepText(st, seg, world, to) { // why a step's words are not the site's
   if (st.t === 'glimpse') { if (!existsSync(path.join(ROOT, st.src))) return `${st.src} is not on the site`
     if (st.src.startsWith('/photos/')) { const ph = data.photos.find(p => p.src === st.src); return ph && ph.caption.startsWith(st.big + ' — ') ? null : `"${st.big}" is not ${st.src}'s caption` } }
   const file = st.t === 'glimpse' ? 'poem-films.html' : seg.kind === 'photo' ? 'v2/data.json' : seg.src
-  for (const piece of st.big.split(' · ')) if (!verbatim(file, piece) && !(seg.kind === 'about' && read('about.html').includes(piece.replace(/’/g, '\\u2019')))) return `"${piece.slice(0, 50)}" is not in ${file}`
+  for (const piece of st.big.split(' · ')) if (!verbatim(file, piece) && !(seg.kind === 'about' && read('v2/about.html').includes(piece.replace(/’/g, '\\u2019')))) return `"${piece.slice(0, 50)}" is not in ${file}`
   if (st.href && !existsSync(path.join(ROOT, st.href.replace(/^\//, '').replace(/#.*$/, '') || 'index.html').replace(/\/$/, '/index.html'))) return `${st.href} does not resolve`
   return null }
 
@@ -200,7 +201,7 @@ const reached = new Set(), kindsSeen = {}
     if (s.kind === 'line') { if (!live.has(s.poem)) bad.push(`${s.id}: not a live poem`); for (const l of s.lines) if (!verbatim(`poems/${s.poem}.html`, l)) bad.push(`${s.id}: "${l}"`) }
     if (s.kind === 'photo' && (!existsSync(path.join(ROOT, s.img)) || !data.photos.some(p => p.src === s.img && p.caption.startsWith(s.place + ' — ')))) bad.push(`${s.id}: not a photograph on the site`)
     if (s.kind === 'film' && (!existsSync(path.join(ROOT, s.img)) || !verbatim('poem-films.html', s.text) || !live.has(s.poem))) bad.push(`${s.id}: not on the films page`)
-    if (s.kind === 'about' && !verbatim('about.html', s.text) && !read('about.html').includes(s.text.replace(/’/g, '\\u2019'))) bad.push(`${s.id}: "${s.text}" is not on the About`)
+    if (s.kind === 'about' && !verbatim('v2/about.html', s.text) && !read('v2/about.html').includes(s.text.replace(/’/g, '\\u2019'))) bad.push(`${s.id}: "${s.text}" is not on the About`)
     if (s.kind === 'idea' && !IDEAS.some(I => [I.detail.intro, ...(I.detail.tools || []), I.detail.boundary].some(t => t && t.includes(s.text)) && I.name === s.title)) bad.push(`${s.id}: not on the wall`)
     if (/\b(Divya|Sweta|Sahil|Rachna|Gourav)\b/.test(s.text || '')) bad.push(`${s.id}: names someone else`) }
   check(!bad.length, `every one of ${segN.toLocaleString('en-US')} segments is in its source on the site, word for word, and names no one but him`, bad.slice(0, 6).join(' | ')) }
@@ -210,6 +211,25 @@ function facetsFor(photo, poem, W, H) { const count = W < 640 ? 15 : H < 560 ? 1
   const K = CUT.cut({ R, W, H, count, logic: 'masses', wind: 8, seed: key, dials: { share: .75, gap: .03, spacing: .16, fillGap: .13, lineMin: .25 } }), cells = CUT.voronoi(K.sites, W, H, 8), n = linesOf(poem).length
   return CUT.facets(K, cells, W, H, 8, R).filter(f => f.edges.length && f.region).map(f => S37.describe(f, R, { line: Math.min(n - 1, Math.floor(f.centroid[1] / H * n)), c: f.centroid })) }
 const D = { SEG, data, VOC, KIN, stanzasOf }
+/* every segment's way out lands where its words are written: each step the page builds with a link (S37.steps itself, both ways a
+   tap unfolds) must carry words that are on that page, word for word. /#flow counts as /v2/#flow (the stone forwards it), and a page
+   that loads /v2/home.js shows the IDEAS written there. 9 Nov: the About's segments are the letter's, so they go to /v2/about.html */
+{ const bad = [], seen = new Set(), known = new Set(); let links = 0
+  // The one link that does not (9 Nov, left for Kahran): the Context idea's opening, unfolded whole, goes to the idea's own page
+  // (its IDEAS href), which says the same thing in other words. Listed so it cannot spread; the check fails if it stops being true.
+  const KNOWN = { 'idea:context /context/': 'IDEAS gives Context an href to its own page; the opening is written on the wall, not there' }
+  const fileOf = h => { const u = h.startsWith('/#flow') ? '/v2/' : h.replace(/[#?].*$/, ''); return u.replace(/^\//, '').replace(/(^|\/)$/, '$1index.html') }
+  const holds = (f, t) => { if (!existsSync(path.join(ROOT, f))) return false; const raw = read(f)
+    return verbatim(f, t) || raw.includes(t) || raw.includes(t.replace(/’/g, '\\u2019')) || (raw.includes('<script src="/v2/home.js">') && verbatim('v2/home.js', t)) }
+  for (const s of SEG.segs) { const to = { photo: data.photos.find(q => q.src !== s.img).src, poem: data.poems.find(q => q.slug !== s.poem && live.has(q.slug)).slug }
+    for (const y of ['shape', 'whole']) for (const st of S37.steps({ seg: s, link: { k: 'word' }, to }, y, D)) { if (!st.href || st.t === 'move') continue
+      const f = fileOf(st.href), pieces = st.t === 'lines' ? st.lines : st.big.split(' · '), key = st.href + '|' + pieces.join('|'); if (seen.has(key)) continue; seen.add(key); links++
+      const miss = pieces.find(t => !holds(f, t)); if (!miss) continue
+      if (KNOWN[s.id.split(':').slice(0, 2).join(':') + ' ' + st.href]) { known.add(s.id.split(':').slice(0, 2).join(':') + ' ' + st.href); continue }
+      bad.push(`${s.id} → ${st.href}: "${miss.slice(0, 50)}" is not there`) } }
+  for (const k of Object.keys(KNOWN)) if (!known.has(k)) bad.push(`${k} is listed as known but now lands on its words: take it off the list`)
+  check(!bad.length && links > 0, `every one of ${links.toLocaleString('en-US')} links a segment opens lands on a page holding its words, word for word (the About's at /v2/about.html; ${known.size} known exception, named in the check)`, bad.slice(0, 6).join(' | ')) }
+
 function plansHold(world, plan, facets, y, tag, bad) { // the rules every dealt world obeys, static or drawn
   const say = m => { if (bad.length < 14) bad.push(`${tag}: ${m}`) }, uniq = (f, what) => { const m = new Map(); plan.forEach((p, i) => { if (!p) return; const k = f(p); if (k == null) return; if (m.has(k)) say(`#${m.get(k)} and #${i} share ${what} ${k}`); else m.set(k, i) }) }
   plan.forEach((p, i) => { if (!p) say(`facet ${i} yields nothing`) })
@@ -239,7 +259,7 @@ if (process.env.STATIC !== '0') {
 /* ---------- the check's own mutation guard: its readers must reject what they exist to reject ---------- */
 { const w = { photo: data.photos[0].src, poem: data.poems[0].slug, doors: [] }, seg = SEG.segs.find(s => s.kind === 'line' && /\bnight\b/.test(s.lines.join(' ')))
   const f = { uv: [.5, .9], tone: 'dark', sal: 0, edges: 0, side: null, door: null }
-  const fake = [commentary('the dark · a lovely quiet moment', w, seg), commentary('the dark · this one waits for 4°', w, seg), commentary('the night · ‘night’', w, seg), stepText({ t: 'say', big: seg.lines[0] + ' indeed', small: seg.title }, { ...seg, kind: 'about', src: 'about.html', text: '' }, w)]
+  const fake = [commentary('the dark · a lovely quiet moment', w, seg), commentary('the dark · this one waits for 4°', w, seg), commentary('the night · ‘night’', w, seg), stepText({ t: 'say', big: seg.lines[0] + ' indeed', small: seg.title }, { ...seg, kind: 'about', src: 'v2/about.html', text: '' }, w)]
   const wrong = [recount(w, f, seg, { k: 'region', cls: 'dark', word: 'moon' }, 'dark'), recount(w, f, seg, { k: 'region', cls: 'dark', word: 'night' }, 'light'), recount(w, { ...f, door: null }, seg, { k: 'word', word: 'zebra', line: 1 }, 'dark')]
   check(fake.every(Boolean) && wrong.every(Boolean) && !commentary('the dark · ‘night’', w, seg) && !recount(w, f, seg, { k: 'region', cls: 'dark', word: 'night' }, 'dark'), 'the check rejects invented commentary, a non-verbatim piece and a basis that does not hold', JSON.stringify({ fake, wrong })) }
   return { plansHold, regionAt, segBy, reached, LABEL_OK, kindsSeen }
@@ -601,8 +621,13 @@ try {
   const gap = (a, b) => Math.hypot(Math.max(0, b[0] - (a[0] + a[2]), a[0] - (b[0] + b[2])), Math.max(0, b[1] - (a[1] + a[3]), a[1] - (b[1] + b[3])))
   const share = (box, P) => { let n = 0, t = 0; for (let a = 0; a <= 4; a++) for (let b = 0; b <= 2; b++) { t++; if (inPoly([box[0] + box[2] * a / 4, box[1] + box[3] * b / 2], P)) n++ } return n / t }
   const centre = r => [r[0] + r[2] / 2, r[1] + r[3] / 2]
+  // wholly inside: every corner and every point of the box's edge (each 4px) inside the raw cell and a seam's width from its every side, measured here, not with the page's inset
+  const seam = Number(DEF['seam-px'])
+  const edgeD = ([x, y], P) => { let d = Infinity; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [ax, ay] = P[j], [bx, by] = P[i], vx = bx - ax, vy = by - ay, l2 = vx * vx + vy * vy || 1, t = Math.max(0, Math.min(1, ((x - ax) * vx + (y - ay) * vy) / l2)); d = Math.min(d, Math.hypot(x - ax - t * vx, y - ay - t * vy)) } return d }
+  const ring = b => { const pts = [], n = k => Math.max(2, Math.ceil(k / 4)); for (let a = 0; a <= n(b[2]); a++) { const x = b[0] + b[2] * a / n(b[2]); pts.push([x, b[1]], [x, b[1] + b[3]]) } for (let a = 0; a <= n(b[3]); a++) { const y = b[1] + b[3] * a / n(b[3]); pts.push([b[0], y], [b[0] + b[2], y]) } return pts }
+  const wholly = (b, P) => P.length > 2 && ring(b).every(p => inPoly(p, P) && edgeD(p, P) >= seam - .01)
   const r1 = a => a.map(v => Math.round(v))
-  const defaults = DEF, IDEAS = HOME_IDEAS, WORDS = new Set(IDEAS.flatMap(I => [I.name, I.line, ...I.parts, I.detail.intro, ...I.detail.tools, I.detail.boundary])), BY = 110
+  const defaults = DEF, IDEAS = HOME_IDEAS, WORDS = new Set(IDEAS.flatMap(I => [I.name, I.line, ...I.parts, I.detail.intro, ...I.detail.tools, I.detail.boundary])), BY = Number(DEF['tools-near-px'])
 
   // what the page dealt and drew, held to 37's rules, each facet's region recounted from regions.json at the centre the page cut
   const drawnHold = async label => {
@@ -731,6 +756,30 @@ try {
   const openWhy = async () => { await tapEl('#where'); await waitFor(() => cdp.eval(`document.body.classList.contains('why') && +getComputedStyle(document.getElementById('why')).opacity > .98 && document.querySelector('.why-body').dataset.drawn === 'yes'`), 'the chain opens', 120) }
   const scrimPt = vp => cdp.eval(`(() => { for (const [x, y] of [[${vp.w} - 20, ${vp.h} * .4], [20, 20], [${vp.w} * .5, 40], [${vp.w} - 20, ${vp.h} - 20], [${vp.w} * .5, ${vp.h} * .5]]) { const e = document.elementFromPoint(x, y); if (e && e.id === 'why-scrim') return [x, y] } return null })()`)
 
+  /* the six names sit WHOLLY inside one facet (Kahran, 9 Nov: "are tools just randomly floating what is that"): every photograph, each with two
+     poems (every live poem in turn), at five screens, as a visit makes the world and as a crossing does (HOME.plant: makeWorld itself, off
+     screen); every corner and every point of the names' edge inside the facet's cut, a seam's width in, and clear of the poem, the name,
+     the caption, the switch and the where line. SWEEP=0 skips it, SWEEP=only stops after it */
+  if (process.env.SWEEP !== '0') {
+    const SW = [[390, 844, true], [375, 667, true], [430, 932, true], [844, 390, true], [1440, 900, false]]
+    const poems = DATA.poems.filter(p => live.has(p.slug)), photos = DATA.photos.filter(p => REGIONS[p.src])
+    const keys = photos.flatMap((p, k) => [0, 46].map(o => poems[(k * 7 + o) % poems.length].slug + '~' + p.src.replace('/photos/', '')))
+    const bad = [], seen = { n: 0, recut: 0, far: 0, slow: 0, scroll: 0, farAt: {} }, ts = Date.now()
+    for (const [w, h, mobile] of SW) {
+      await view({ id: 'sweep', w, h, mobile }); await open('')
+      for (const key of keys) for (const crossed of [false, true]) {
+        const trail = crossed ? [keys[(keys.indexOf(key) + 1) % keys.length]] : [], t1 = Date.now(), r = await cdp.eval(`HOME.plant(${JSON.stringify(key)}, ${JSON.stringify(trail)})`); seen.n++; seen.slow = Math.max(seen.slow, Date.now() - t1)
+        const tag = `${w}x${h} ${crossed ? 'crossed into' : 'fresh'} ${key}`
+        if (!r || r.tools < 0 || !r.box) { bad.push(`${tag}: no facet holds the names`); continue }
+        if (r.cutT) seen.recut++; if (r.basis.d > BY) { seen.far++; seen.farAt[w + 'x' + h] = (seen.farAt[w + 'x' + h] || 0) + 1 } if (r.scroll) seen.scroll++
+        if (/dots/.test(r.box[5] || '') || !(r.box[2] > 60)) bad.push(`${tag}: the names are not words (${r.box[5]})`)
+        if (r.half) bad.push(`${tag}: the poem's box cuts ${r.half} line(s) in half`)
+        { const ph = [['caption', r.cap], ['switch', r.vs]].filter(([, o]) => o[2] > 0 && meet(r.poem, o)).map(([k]) => k); if (ph.length || r.poem[1] < 0 || r.poem[1] + r.poem[3] > h + .5) bad.push(`${tag}: the poem ${ph.length ? 'is on the ' + ph.join(', ') : 'leaves the screen'}`) }
+        const P = r.cells[r.tools], b = r.box.slice(0, 4), hit = [['poem', r.poem], ['name', r.mat], ['caption', r.cap], ['switch', r.vs], ['where line', r.where]].filter(([, o]) => o[2] > 0 && meet(b, o)).map(([k]) => k)
+        if (!r.drawn.includes(r.tools) || !wholly(b, P) || hit.length || b[0] < 0 || b[1] < 0 || b[0] + b[2] > w || b[1] + b[3] > h) bad.push(`${tag}: ${!wholly(b, P) ? 'over a seam' : ''}${hit.length ? ' on the ' + hit.join(', ') : ''} ${r1(b)}`) } }
+    check(!bad.length, `the six names sit wholly inside one facet as words, a seam's width in, clear of the poem, the name, the caption, the switch and the where line; the poem clear of the caption and the switch, never a half line: ${keys.length} worlds (all ${photos.length} photographs, ${new Set(keys.map(k => k.split('~')[0])).size} poems) x ${SW.length} screens x fresh and crossed = ${seen.n} placements, every one as words; ${seen.recut} on a cut re-seeded to hold them; ${seen.far} farther than ${BY}px from the line, none nearer could hold them (${Object.entries(seen.farAt).map(([k, v]) => k + ' ' + v).join(', ') || 'none'}); ${seen.scroll} poems shown in whole lines, the rest a scroll; slowest world made in ${seen.slow}ms (${Math.round((Date.now() - ts) / 1000)}s)`, `${bad.length} wrong: ${bad.slice(0, 8).join(' | ')}`)
+    if (process.env.SWEEP === 'only') { console.log(bad.join('\n')); throw new Error('SWEEP=only: stopped after the sweep') } }
+
   for (const vp of VIEWPORTS) {
     await view(vp); await reduceMotion(false); errors.length = 0; const tag = `${vp.w}x${vp.h}`
     const first = await open('')
@@ -787,12 +836,11 @@ try {
       /* the one facet, and the names on it */
       check(s.tools >= 0 && s.namesOn && s.kinds.filter(k => k === 'tools').length === 1, `${label}: one facet holds the six names`, `facet ${s.tools}, on ${s.namesOn}`)
       if (s.tools < 0) continue
-      const box = s.plan.box, nm = s.names
-      check(Math.abs(nm[0] - box[0]) < 1.5 && Math.abs(nm[1] - box[1]) < 1.5 && nm[2] <= box[2] + 1.5 && nm[3] <= box[3] + 1.5, `${label}: the names are where the plan put them`, `${r1(nm)} vs ${r1(box)}`)
-      const need = Math.max(Number(defaults['tools-inside-last']), Math.min(Number(defaults['tools-inside']), s.plan.basis.inside ?? 1))
-      check(inPoly(centre(nm), P) && share(nm, P) >= need - .01 && need >= Number(defaults['tools-inside-last']), `${label}: the names sit on their facet (centre in the cut, ${Math.round(share(nm, P) * 100)}% inside${need < Number(defaults['tools-inside']) ? ', leaning over a seam to stay by the line' : ''})`, `${Math.round(share(nm, P) * 100)}% < ${need}`)
-      const hit = [['poem', s.poem], ['name', s.mat], ['caption', s.cap], ['switch', s.vs]].filter(([, r]) => r[2] > 0 && meet(nm, r)).map(([k]) => k)
-      check(!hit.length && nm[0] >= 0 && nm[1] >= 0 && nm[0] + nm[2] <= s.W && nm[1] + nm[3] <= s.H, `${label}: the names keep clear of the poem, the name, the caption and the switch`, hit.join(', '))
+      const box = s.plan.box, nm = s.namesAll // every name to its last letter, not only the row they wrap in
+      check(Math.abs(nm[0] - box[0]) < 1.5 && Math.abs(nm[1] - box[1]) < 1.5 && Math.abs(nm[2] - box[2]) < 1.5 && Math.abs(nm[3] - box[3]) < 1.5, `${label}: the names are where the plan put them, at the size it measured`, `${r1(nm)} vs ${r1(box)}`)
+      check(wholly(nm, P), `${label}: the names sit wholly inside their facet, a seam's width in at every corner and edge`, `${r1(nm)} in facet ${s.tools}`)
+      const hit = [['poem', s.poem], ['name', s.mat], ['caption', s.cap], ['switch', s.vs], ['where line', s.where]].filter(([, r]) => r[2] > 0 && meet(nm, r)).map(([k]) => k)
+      check(!hit.length && nm[0] >= 0 && nm[1] >= 0 && nm[0] + nm[2] <= s.W && nm[1] + nm[3] <= s.H, `${label}: the names keep clear of the poem, the name, the caption, the switch and the where line`, hit.join(', '))
       /* the basis, recounted */
       const fits = s.fits.filter(f => f.box), lies = fits.filter(f => meet(f.box, s.poem) || meet(f.box, s.mat) || !inPoly(centre(f.box), s.cells[f.i]))
       const d = fits.map(f => ({ i: f.i, d: gap(f.box, s.where) })).sort((a, b) => a.d - b.d), mine = gap(box, s.where)

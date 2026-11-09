@@ -14,9 +14,9 @@ for (const [k, v] of Object.entries(T)) document.documentElement.style.setProper
 const num = (k, f) => { const x = parseFloat(T[k]); return Number.isFinite(x) ? x : f }
 // his picks, held: 24's vocabulary and naming, 37's shape, 39's grow, 36's return
 const VOCAB = 'his', NAME = 'crossing', Y = 'shape', X = 'grow', JW = 'c'
-/* the way into the About's years, ONE seam: where it lives, and the flight into it (yearsOut below). 27 a lives at this address until
-   Kahran says whether it replaces about.html; then this becomes '/about.html'. A page here without 27 a's year rows is opened plainly. */
-const YEARS = '/studies/27/index.html?v=a'
+/* the way into the About's years, ONE seam: where it lives, and the flight into it (yearsOut below). 27 a became about.html on 9 Nov
+   (built by studies/27/build.mjs --about). A page here without 27 a's year rows is opened plainly. */
+const YEARS = '/about.html'
 const qs = (o = {}) => '?' + new URLSearchParams(o).toString()
 document.body.dataset.a = 'line'
 const track = (name, params = {}) => document.dispatchEvent(new CustomEvent('home:track', { detail: { name, params } })) // track.js counts it
@@ -194,9 +194,9 @@ function doorsFor(w, trail) {
 /* ---------- photographs: covering the screen once, the shade under the poem laid into them ---------- */
 const raw = {}, prepared = new Map()
 const loadImg = src => raw[src] ||= new Promise(res => { const im = new Image(); im.decoding = 'async'; im.onload = () => res(im); im.onerror = () => res(null); im.src = src })
-function poemRect() { // 20's
-  if (phone()) { const top = Math.round(H * .34), bottom = H - mat.offsetHeight - 34 - namesRoom(); return [16, top, W - 32, Math.max(160, bottom - top)] }
-  if (low()) { const w = Math.min(440, W * .48), right = Math.max(16, W * .03), top = Math.round(H * .16); return [W - w - right, top, w, H - top - 14] } // on its side: the poem takes the right half, the mat keeps the left
+function poemRect(at = {}) { // 20's, yielding to the names: on a phone it stands on them (at.foot) or, where they sit above it, hangs under them (at.head); on its side it starts right of them (at.left)
+  if (phone()) { const bottom = at.foot ?? (at.head != null ? H - mat.offsetHeight - 34 : H - mat.offsetHeight - 34 - namesRoom()), top = at.head ?? Math.min(Math.round(H * .34), bottom - 160); return [16, top, W - 32, bottom - top] }
+  if (low()) { const right = Math.max(16, W * .03), w = Math.min(440, W * .48, at.left != null ? W - right - at.left : 1e9), top = Math.round(H * .16); return [W - w - right, top, w, H - top - 14] } // on its side: the poem takes the right half, the mat keeps the left
   const w = Math.min(440, W * .36), right = Math.max(32, W * .06), top = Math.round(H * .13); return [W - w - right, top, w, H * .74] }
 async function photo(p) {
   const tag = `${p.src}@${cv.width}x${cv.height}`
@@ -234,10 +234,13 @@ function verseEl(w, doors) {
   return v }
 function fit(v, w, h) { const max = num('poem-max-px', 18), min = num('poem-min-px', 13)
   Object.assign(v.style, { width: w + 'px', height: 'auto' }); v.classList.remove('scroll')
-  let px = max; v.style.fontSize = px + 'px'
-  while (v.scrollHeight > h && px > min) { px = Math.max(min, px - .5); v.style.fontSize = px + 'px' }
+  const at = px => { v.style.fontSize = px + 'px'; return v.scrollHeight <= h }
+  let lo = 0, hi = Math.round((max - min) * 2) // the largest half-pixel size that fits, or the smallest (as stepping down from the largest would find)
+  if (!at(max)) { while (hi - lo > 1) { const m = (lo + hi) >> 1; if (at(max - m * .5)) hi = m; else lo = m } at(max - hi * .5) }
   v.style.height = Math.min(h, v.scrollHeight) + 'px'
-  if (v.scrollHeight > h + 1) { v.classList.add('scroll'); v.style.height = h + 'px' } }
+  if (v.scrollHeight > h + 1) { v.classList.add('scroll') // more than fits at its smallest: it shows whole lines only, and the rest scrolls
+    const top = v.getBoundingClientRect().top - v.scrollTop; let last = 0; for (const k of v.querySelectorAll(':scope > h2, :scope > .l')) { const b = k.getBoundingClientRect().bottom - top; if (b <= h + .5) last = b }
+    v.style.height = (last || h) + 'px' } }
 const metrics = new Map()
 function descent(font) { if (!metrics.has(font)) { g.save(); g.font = font; const m = g.measureText('Hg'); metrics.set(font, [m.fontBoundingBoxAscent || 14, m.fontBoundingBoxDescent || 4]); g.restore() } return metrics.get(font) }
 function lineCanvases(w) { // each line drawn once, in its face and shadow; the stone composites them as they arrive
@@ -259,11 +262,16 @@ function lineCanvases(w) { // each line drawn once, in its face and shadow; the 
     const rows = new Map(); for (const r of L.runs) if (r.k != null) { const key = r.k + '|' + Math.round(r.y); const o = rows.get(key); if (o) { o[0] = Math.min(o[0], r.x); o[1] = Math.max(o[1], r.x + r.w) } else rows.set(key, [r.x, r.x + r.w, r.y, r.k, parseFloat(r.font.split(' ')[2])]) }
     L.unders = [...rows.values()] }
   return out }
+function placePoem(w, at) { // where the poem sits; on a phone, if it cannot fit at its smallest size it rises to just under the caption first
+  const R = poemRect(at), ceil = phone() ? ceilOf(w) : 0; if (R[1] < ceil) { R[3] -= ceil - R[1]; R[1] = ceil } // never up onto the caption
+  Object.assign(w.v.style, { left: R[0] + 'px', top: R[1] + 'px' }); fit(w.v, R[2], R[3])
+  if (phone() && w.v.classList.contains('scroll') && !(at && at.head != null)) { const top = ceil; if (top < R[1]) { /* never past names above it */ R[3] += R[1] - top; R[1] = top; w.v.style.top = R[1] + 'px'; fit(w.v, R[2], R[3]) } }
+  if (phone()) { R[1] = R[1] + R[3] - w.v.offsetHeight; w.v.style.top = R[1] + 'px' } // on the phone the poem sits down on the names, in the shade
+  const r = w.v.getBoundingClientRect(); w.R = [r.left, r.top, r.width, r.height] }
+const ceilOf = w => { const c = capFor(w), v = rectOf('.vs'); return Math.max(c[1] + c[3], v[1] + v[3]) + num('poem-rise-gap-px', 16) } // the highest a phone's poem may rise: under the caption and the switch
 function layoutPoem(w) {
   w.v = verseEl(w, w.doors); readEl.append(w.v)
-  const R = poemRect(); Object.assign(w.v.style, { left: R[0] + 'px', top: R[1] + 'px' }); fit(w.v, R[2], R[3])
-  if (phone()) { R[1] = R[1] + R[3] - w.v.offsetHeight; w.v.style.top = R[1] + 'px' } // on the phone the poem sits down on the name, in the shade
-  const r = w.v.getBoundingClientRect(); w.R = [r.left, r.top, r.width, r.height]
+  placePoem(w)
   w.lines = [w.v.querySelector('h2'), ...w.v.querySelectorAll('.l')]
   w.doors = w.doors.filter(d => d.el) // only doors the page actually shows
   w.lc = lineCanvases(w)
@@ -291,11 +299,30 @@ async function makeWorld(pair, mode, tr0) {
   cutFor(w)
   w.img = img
   layoutPoem(w)
-  { // no dead facet: a facet the poem's door rows and the links cover whole is cut again (the same way each time), keeping the cut with the fewest
-    const deadOf = () => drawn(w).filter(i => !touchAt(w, i, { first: true, all: true })).length, cut = t => cutFor(w, t)
-    let best = [deadOf(), 0]
-    for (let t = 1; t <= 16 && best[0]; t++) { cut(t); const n = deadOf(); if (n < best[0]) best = [n, t] }
-    if (best[1] !== 16) cut(best[1]) }
+  { // no dead facet, and the six names whole in a facet by the where line: a cut that fails either is cut again (the filling sites re-seeded, the same way each time,
+    // never the photograph's lines), keeping the cut that holds the names nearest (by the line, then anywhere), and of those the one with the fewest dead facets.
+    // On a phone, upright or on its side, the names' spot is found first and the poem yields to it (stands on it, or starts right of it), keeping at least
+    // poem-least (else poem-least-tight) for itself: room is made by the poem, never by shrinking the names
+    const near = num('tools-near-px', 110), deadOf = () => drawn(w).filter(i => !touchAt(w, i, { first: true, all: true })).length, ids = () => drawn(w).map(i => ({ i }))
+    const gap = num('tools-poem-gap-px', 16), lowRight = Math.max(16, W * .03)
+    const room = least => phone() ? { minTop: ceilOf(w) + least + gap } : { maxRight: W - lowRight - least - gap } // how far the names may push the poem: it keeps at least this much
+    const yields = s => !s ? undefined : phone() ? { foot: s.box[1] - gap } : { left: Math.max(s.box[0] + s.box[2] + gap, W - lowRight - Math.min(440, W * .48)) }
+    const plan = () => { if (!phone() && !low()) return { s: toolsFacet(w, ids()), roomy: true }
+      const stops = [rectOf('#mat'), capFor(w), rectOf('.vs')], [a0, a1] = phone() ? [num('poem-least-px', 180), num('poem-least-tight-px', 90)] : [num('poem-least-w-px', 320), num('poem-least-w-tight-px', 240)]
+      let s = toolsFacet(w, ids(), { stops, ...room(a0) }), roomy = !!s; if (!s) s = toolsFacet(w, ids(), { stops, ...room(a1) })
+      if (!s && phone()) { const h = toolsFacet(w, ids(), { stops, minTop: ceilOf(w), maxBottom: H - mat.offsetHeight - 34 - a1 - gap }) // no room by the line: the names take the nearest facet that holds them above the poem, and the poem sits between them and the mat
+        if (h) return { s: h, roomy: false, at: { head: h.box[1] + h.box[3] + gap }, place: true, over: true } }
+      return { s, roomy, at: yields(s), place: true } }
+    const rankOf = p => !p.s ? 0 : p.over ? 1 : (p.s.basis.d <= near ? 3 : 1) + (p.roomy ? 2 : 1) // near and roomy, near and tight, far and roomy, then far: tight, or the names over the poem
+    let best = null, at = -1
+    const cut = t => { if (at !== t) { cutFor(w, t); at = t } }
+    const settle = p => { if (!p.place) return p; placePoem(w, p.at); return p.s ? p : { s: toolsFacet(w, ids()), roomy: true } } // the poem where this cut's names want it; no spot: the poem where it was, any facet that holds them
+    for (let t = 0; t <= num('recut-tries', 64); t++) { cut(t); let p = plan(); if (best && rankOf(p) < best.rank) continue
+      p = settle(p); const rank = rankOf(p)
+      if (best && rank < best.rank) continue
+      const dead = deadOf(); if (!best || rank > best.rank || dead < best.dead) best = { t, rank, dead }
+      if (best.rank === 5 && !best.dead) break }
+    cut(best.t); settle(plan()); w.lc = lineCanvases(w); w.dirty = true }
   fixedOf(w)
   w.lv = new Float32Array(w.cells.length)
   return w }
@@ -359,11 +386,11 @@ const refr = () => num('refract-px', 5)
 const textLayer = (w, i, n, cell, alpha = 1) => meets(bbox(cell), w.R, 24) ? [{ img: w.text, alpha, m: tr(n[0] * refr(), n[1] * refr()) }] : [] // each facet holds the poem a little off, so it breaks at the seams
 function drawWorld(w, o = {}) { const touched = w === cur && !crossing && !pressing && !o.plain
   w.cells.forEach((P, i) => { const base = [{ img: w.img }, ...textLayer(w, i, w.normals[i], P, o.text ?? 1)]
-    const o2 = w.toolsI === i && !o.plain ? { ...o, edge: Math.max(o.edge || 0, num('tools-edge', .22)) } : o // the tools' facet keeps a faint rim
+    const o2 = w.toolsI === i && !o.plain ? { ...o, edge: Math.max(o.edge || 0, num('tools-edge', .22)), glow: Math.max(o.glow || 0, num('tools-glow', 0)) } : o // the tools' facet: its rim drawn, a breath of light in it, so the names read as its own
     if (!touched) return note('r' + i, facet(P, w.cents[i], w.normals[i], base, o2), o2.m, o.alpha ?? 1)
     const G = FX.glimpse && FX.glimpse.w === w && FX.glimpse.i === i && FX.win ? FX.glimpse : null
     if (G) { const u = performance.now() - G.t0, ms = num('win-hold-ms', 3600); base.splice(1, 0, { img: G.img, alpha: reduce() ? 1 : Math.min(ss(0, 420, u), 1 - ss(ms - 600, ms, u)) * num('glimpse-alpha', 1), m: G.m }) }
-    const fx = { ...o2, ...fxOf(w, i) }; note('r' + i, facet(P, w.cents[i], w.normals[i], base, fx), fx.m, 1) }) } // at rest and touched alike, every facet holds this photograph: nothing is swapped in
+    const fx = { ...o2, ...fxOf(w, i) }; fx.glow = Math.max(fx.glow || 0, o2.glow || 0); note('r' + i, facet(P, w.cents[i], w.normals[i], base, fx), fx.m, 1) }) } // at rest and touched alike, every facet holds this photograph: nothing is swapped in
 /* the ledger (39's): every facet drawn this frame, as drawn (its polygon after the seam and any transform), and how much of it is seen.
    The check reads it frame by frame: nothing may leave it, or join it, while it is seen */
 let ledger = { t: null, list: [] }
@@ -422,40 +449,42 @@ const gapOf = (a, b) => Math.hypot(Math.max(0, b[0] - (a[0] + a[2]), a[0] - (b[0
 function whereRect() { const r = rectOf('#where'); return r[3] > 0 ? r : rectOf('#mat h1') } // the line that says where he is and the sky; before it is written, the name it sits under
 const boxes = new Map()
 const namesRoom = () => { const b = namesBoxes().find(b => b[0] <= W - 32) || namesBoxes().at(-1); return b[1] + num('tools-room-px', 34) } // on a phone the poem sits on the where line; it stands up by the names' height, so they can sit beside the line there too
-function namesBoxes() { // the six names as they can read: one long row, then two, then wrapped to the measure and narrower, so a long strip or a slim facet can hold them; sized once per screen
-  if (!namesEl.children.length) IDEAS.forEach((I, k) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = I.name; b.title = I.line; b.dataset.k = k; b.style.setProperty('--hue', HUE[I.hue] || ''); namesEl.append(b) })
+const FORMS = [[2.6], [1.6], [1], [.8], [.64], [0, 'col'], [0, 'col tight']] // one long row, then two, then wrapped narrower; then one name a line, then the same tracked tighter, for a slim facet
+function namesBoxes() { // the six names in every shape they can take, each measured to its last letter (a name never wraps, so it can be wider than the measure); sized once per screen
+  if (!namesEl.children.length) IDEAS.forEach((I, k) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = I.name; b.title = I.line; b.setAttribute('aria-label', I.name); b.dataset.k = k; b.style.setProperty('--hue', HUE[I.hue] || ''); namesEl.append(b) })
   const key = W + 'x' + H; if (boxes.has(key)) return boxes.get(key)
-  const m0 = phone() ? num('tools-measure-phone-px', 190) : num('tools-measure-px', 250), keep = namesEl.style.maxWidth, out = []
-  for (const k of [2.6, 1.6, 1, .8, .64, .5]) { namesEl.style.maxWidth = Math.round(m0 * k) + 'px'; const r = namesEl.getBoundingClientRect(); out.push([Math.ceil(r.width), Math.ceil(r.height), Math.round(m0 * k)]) }
-  namesEl.style.maxWidth = keep; boxes.set(key, out); return out }
-function fitIn(w, i, stops, to, inside = num('tools-inside', .6)) { // where the names can sit on facet i: its centre and most of it inside the cut (a seam's width in), clear of the poem, the name, the caption and the switch; as near the where line as the facet allows
-  const P = inset(w.cells[i], num('seam-px', 2.2) + 6); if (P.length < 3) return null
+  const m0 = phone() ? num('tools-measure-phone-px', 190) : num('tools-measure-px', 250), keep = [namesEl.style.maxWidth, namesEl.classList.contains('col'), namesEl.classList.contains('tight')], out = []
+  for (const [k, form = ''] of FORMS) { formNames(k ? Math.round(m0 * k) : 0, form); const r = namesEl.getBoundingClientRect(); let x1 = r.right, y1 = r.bottom
+    for (const b of namesEl.children) { const q = b.getBoundingClientRect(); x1 = Math.max(x1, q.right); y1 = Math.max(y1, q.bottom) }
+    out.push([Math.ceil(x1 - r.left), Math.ceil(y1 - r.top), k ? Math.round(m0 * k) : 0, form]) }
+  namesEl.style.maxWidth = keep[0]; namesEl.classList.toggle('col', keep[1]); namesEl.classList.toggle('tight', keep[2]); boxes.set(key, out); return out }
+function formNames(mw, form) { namesEl.style.maxWidth = mw ? mw + 'px' : ''; for (const c of ['col', 'tight']) namesEl.classList.toggle(c, (form || '').split(' ').includes(c)) }
+const edgeD = ([x, y], P) => { let d = Infinity; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [ax, ay] = P[j], [bx, by] = P[i], vx = bx - ax, vy = by - ay, l2 = vx * vx + vy * vy || 1, t = Math.max(0, Math.min(1, ((x - ax) * vx + (y - ay) * vy) / l2)); d = Math.min(d, Math.hypot(x - ax - t * vx, y - ay - t * vy)) } return d }
+const ringOf = (x, y, bw, bh) => { const pts = [], nx = Math.max(2, Math.ceil(bw / 8)), ny = Math.max(2, Math.ceil(bh / 8)); for (let a = 0; a <= nx; a++) pts.push([x + bw * a / nx, y], [x + bw * a / nx, y + bh]); for (let a = 1; a < ny; a++) pts.push([x, y + bh * a / ny], [x + bw, y + bh * a / ny]); return pts }
+function fitIn(w, i, stops, to, minTop = 0, maxRight = 1e9, maxBottom = 1e9) { // where the names can sit WHOLLY on facet i (Kahran, 9 Nov: never over a seam): every corner and every point of their edge inside its cut, a seam's width and a breath in,
+  // clear of the poem, the name, the caption and the switch; in whichever shape lets them sit nearest the where line, then flush with it, then nearest the facet's centre
+  const cell = w.cells[i], inn = num('seam-px', 2.2) + num('tools-pad-px', 8), P = inset(cell, inn); if (P.length < 3) return null
   const [x0, y0, x1, y1] = bbox(P), c = w.cents[i]; let best = null, bd = Infinity
-  // nearest the line, then flush with it, then nearest the facet's centre
-  for (const [bw, bh, mw] of namesBoxes()) { const ox = inside > 0 ? 0 : bw / 2, oy = inside > 0 ? 0 : bh / 2 // on the last rung only their centre need be in the cut
-    for (let y = y0 - oy; y + bh <= y1 + oy; y += 6) for (let x = x0 - ox; x + bw <= x1 + ox; x += 6) {
-    const pts = []; for (let a = 0; a <= 4; a++) for (let b = 0; b <= 2; b++) pts.push([x + bw * a / 4, y + bh * b / 2])
-    if (!inPoly([x + bw / 2, y + bh / 2], P) || pts.filter(p => inPoly(p, P)).length < pts.length * inside || x < 8 || y < 8 || x + bw > W - 8 || y + bh > H - 8 || stops.some(o => meet([x, y, bw, bh], o, 10))) continue
-    const d = gapOf([x, y, bw, bh], to) * 1e4 + Math.abs(x - to[0]) * 10 + Math.hypot(x + bw / 2 - c[0], y + bh / 2 - c[1]); if (d < bd) { bd = d; best = [Math.round(x), Math.round(y), bw, bh, mw] } } }
+  for (const [bw, bh, mw, form] of namesBoxes()) if (bw <= x1 - x0 && bh <= y1 - y0)
+    for (let y = Math.max(y0, minTop); y + bh <= Math.min(y1, maxBottom); y += 4) for (let x = x0; x + bw <= Math.min(x1, maxRight); x += 4) {
+      if (x < 8 || y < 8 || x + bw > W - 8 || y + bh > H - 8) continue
+      const g0 = gapOf([x, y, bw, bh], to), d = g0 * 1e4 + bh * 20 + Math.abs(x - to[0]) * 10 + Math.hypot(x + bw / 2 - c[0], y + bh / 2 - c[1]); if (d >= bd) continue
+      if (![[x, y], [x + bw, y], [x, y + bh], [x + bw, y + bh]].every(p => inPoly(p, P)) || stops.some(o => meet([x, y, bw, bh], o, 10))) continue
+      if (!ringOf(x, y, bw, bh).every(p => inPoly(p, cell) && edgeD(p, cell) >= inn - .5)) continue // against the cut itself, not only its inset (a sharp corner's inset is pulled in short)
+      bd = d; best = [Math.round(x), Math.round(y), bw, bh, mw, form] }
   return best }
 function capFor(w) { const was = cap.textContent; cap.textContent = w.photo.caption || ''; const r = rectOf('#cap'); cap.textContent = was; return r } // this world's caption, where it will sit (a world is planned before it is shown)
 const stopsOf = w => [w.R, rectOf('#mat'), capFor(w), rectOf('.vs')]
-function toolsFacet(w, fs) { // the facet nearest the where line that can hold the names (a door line over it still opens its door: the names are their own buttons)
-  const where = whereRect(), stops = stopsOf(w)
-  // most of them inside their facet if a facet that near can hold them; else they lean over a seam rather than leave the line (a phone's band above it is often cut on the slant)
-  const sorter = (a, b) => a.d - b.d // nearest first (40's pick)
-  const levels = [num('tools-inside', .6), num('tools-inside-least', .4), num('tools-inside-floor', .25), num('tools-inside-last', 0)].map(k => ({ k, // the last: only their centre in the cut, so a short screen's slim facets still hold them
-    cand: fs.map(f => { const box = fitIn(w, f.i, stops, where, k); return box && { i: f.i, box, d: +gapOf(box, where).toFixed(1) } }).filter(Boolean).sort(sorter) })).filter(L => L.cand.length)
-  if (!levels.length) return null
-  const nearest = Math.min(...levels.map(L => L.cand[0].d)), L = levels.find(L => L.cand[0].d <= nearest + num('tools-lean-px', 30)) || levels[0]
-  let inside = L.k, cand = L.cand
+function toolsFacet(w, fs, o = {}) { // the facet nearest the where line that can hold the names whole (a door line over it still opens its door: the names are their own buttons)
+  const where = whereRect(), stops = o.stops || stopsOf(w)
+  const cand = fs.map(f => { const box = fitIn(w, f.i, stops, where, o.minTop || 0, o.maxRight ?? 1e9, o.maxBottom ?? 1e9); return box && { i: f.i, box, d: +gapOf(box, where).toFixed(1) } }).filter(Boolean).sort((a, b) => a.d - b.d)
   if (!cand.length) return null
   const [c0, c1] = cand
-  return { i: c0.i, box: c0.box, basis: { rule: 'nearest the where line', where, inside, d: c0.d, next: c1 ? { i: c1.i, d: c1.d } : null, holds: cand.length, of: fs.length } } }
+  return { i: c0.i, box: c0.box, basis: { rule: 'nearest the where line, wholly inside', where, d: c0.d, next: c1 ? { i: c1.i, d: c1.d } : null, holds: cand.length, of: fs.length } } }
 let toolsOpen = -1
 function showNames(w) { const p = planOf(w).find(p => p && p.kind === 'tools')
   namesBoxes(); namesEl.classList.toggle('on', !!p && toolsOpen < 0)
-  if (p) Object.assign(namesEl.style, { left: p.box[0] + 'px', top: p.box[1] + 'px', maxWidth: p.box[4] + 'px' }) }
+  if (p) { formNames(p.box[4], p.box[5]); Object.assign(namesEl.style, { left: p.box[0] + 'px', top: p.box[1] + 'px' }) } }
 function toolsBand(w) { // the clear band for an idea: away from the poem and the name; the caption steps aside while it is open
   const R = w.R, m = rectOf('#mat'), v = rectOf('.vs'), pad = 16, cands = []
   if (phone()) cands.push([pad, v[1] + v[3] + 6, W - pad * 2, R[1] - 12 - (v[1] + v[3] + 6)])
@@ -889,11 +918,17 @@ window.HOME = { expect: null, word: null, trail: [], dry: false, still: false, c
   get state() { const w = cur; if (!w) return null; const pl = planOf(w), k = pl.findIndex(p => p && p.kind === 'tools'), y = pl.findIndex(p => p && p.kind === 'year'), stops = stopsOf(w), where = whereRect()
     const fs = facetsOf(w)
     return { at: document.body.dataset.at, tools: k, plan: k >= 0 ? { box: pl[k].box, basis: pl[k].basis } : null, where, poem: w.R, mat: rectOf('#mat'), cap: rectOf('#cap'), vs: rectOf('.vs'),
-      names: rectOf('#names'), namesOn: namesEl.classList.contains('on'), cells: w.cells.map(P => P.map(([x, y0]) => [+x.toFixed(2), +y0.toFixed(2)])), drawn: drawn(w),
-      fits: fs.map(f => ({ i: f.i, box: k >= 0 ? fitIn(w, f.i, stops, where, pl[k].basis.inside) : null })),
+      names: rectOf('#names'), namesAll: (() => { const r = namesEl.getBoundingClientRect(); let x1 = r.right, y1 = r.bottom; for (const b of namesEl.children) { const q = b.getBoundingClientRect(); x1 = Math.max(x1, q.right); y1 = Math.max(y1, q.bottom) } return [r.left, r.top, x1 - r.left, y1 - r.top] })(), namesOn: namesEl.classList.contains('on'), cells: w.cells.map(P => P.map(([x, y0]) => [+x.toFixed(2), +y0.toFixed(2)])), drawn: drawn(w),
+      fits: fs.map(f => ({ i: f.i, box: k >= 0 ? fitIn(w, f.i, stops, where) : null })),
       year: y, yearPlan: y >= 0 ? { at: pl[y].at, box: pl[y].box, basis: pl[y].basis } : null, yearBox: rectOf('#year a'), yearOn: yearEl.classList.contains('on'), yearText: yearA.textContent,
       kinds: pl.map(p => p ? p.kind : null), W, H } },
   get open() { return toolsOpen }, ideas: IDEAS,
+  async plant(key, trail = []) { // a world made exactly as a visit or a crossing makes it (fresh: no trail; crossed: the trail it came by), off screen, its tools facet read, then let go
+    const pair = pairOf(key); if (!pair) return null; const w = await makeWorld(pair, 'world', trail), { tools } = fixedOf(w)
+    const out = { key: w.key, tools: w.toolsI, cutT: w.cutT, box: tools ? tools.box : null, basis: tools ? tools.basis : null, cells: w.cells.map(P => P.map(([x, y]) => [+x.toFixed(2), +y.toFixed(2)])), drawn: drawn(w),
+      poem: w.R, mat: rectOf('#mat'), cap: capFor(w), vs: rectOf('.vs'), where: whereRect(), W, H, scroll: w.v.classList.contains('scroll'),
+      half: (() => { const R = w.v.getBoundingClientRect(); return [...w.v.querySelectorAll(':scope > h2, :scope > .l')].filter(k => { const r = k.getBoundingClientRect(); return r.top < R.bottom - 1 && r.bottom > R.bottom + 1 }).length })() } // lines the poem's box cuts through
+    drop(w); return out },
   // 35's line and 36 c's join with 34's chain
   get phase() { return FS.line ? FS.line.phase : 'none' }, get whyOpen() { return whyOpen }, get model() { return whyModel }, whyReady: () => whyReady(), how: ctx.how, openWhy, closeWhy, join, JN,
   get first() { return JSON.parse(JSON.stringify({ line: FS.line })) },

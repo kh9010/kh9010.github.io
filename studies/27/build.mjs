@@ -4,12 +4,96 @@
 // new here: each fact's row in the years, with a reason when the fact carries no year, and 19 b's lanes.
 // Writes index.html (style from page.css, dials from defaults.json) + links.json (25's doors and kin) + years.json.
 // node studies/27/build.mjs   (check.mjs then proves it)
+// node studies/27/build.mjs --about [--check]   the live About: /about.html is version a of the committed index.html, as a site
+//   page (Kahran picked 27 a, 8 Nov; live 9 Nov), and /about.js is kin.js byte for byte. It reads only this study's committed
+//   page and touches none of the study's files, so the About is exactly what he picked, and a rebuild changes nothing until
+//   the study itself is rebuilt. --check exits 1 if either file differs from what this would write.
 import { readFileSync, writeFileSync, existsSync, copyFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url)), ROOT = path.resolve(HERE, '..', '..');
 const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
+
+if (process.argv.includes('--about')) {
+  const s = readFileSync(path.join(HERE, 'index.html'), 'utf8');
+  const take = (re, what) => { const m = re.exec(s); if (!m) throw new Error(`build --about: ${what} not found in studies/27/index.html`); return m[1]; };
+  const desc = take(/<meta name="description" content="([^"]+)">/, 'description');
+  const style = take(/<style>\n([\s\S]*?)<\/style>/, 'style');
+  const a = take(/(<div class="v v-a" data-v="a">[\s\S]*?<\/div>\n)<div class="v v-b"/, 'version a');
+  const head = take(/<main>\n([\s\S]*?)<div class="v v-a"/, 'the page header');
+  const nav = take(/(<nav>[\s\S]*?<\/nav>)/, 'nav');
+  const units = take(/(<script type="application\/json" id="units">[\s\S]*?<\/script>)/, 'units');
+  // the wall's flow view moved to /v2/#flow on 9 Nov; the stone forwards /#flow, but a link should not need forwarding
+  const flow = (h) => h.replaceAll('"/#flow"', '"/v2/#flow"');
+  // The tools making's caption is 07's "the five ideas on the home page", written when the wall had five. The live page counts:
+  // the ideas from IDEAS in /v2/home.js (the one table), the ones listed from the list above the caption. Not one of the facts.
+  const homeJs = read('v2/home.js');
+  const IDEAS = new Function(homeJs.slice(homeJs.indexOf('var IDEAS'), homeJs.indexOf('];', homeJs.indexOf('var IDEAS')) + 2) + '; return IDEAS')();
+  const NUM = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  const ideasLine = (h) => {
+    const re = /(<a class="lh u" data-id="lift:tools"[\s\S]*?)<span data-t="p" class="from">the five ideas on the <a href="\/">home page<\/a><\/span data-t="p">/;
+    const m = re.exec(h); if (!m) throw new Error('build --about: the tools caption "the five ideas on the home page" moved; look again');
+    const listed = (m[1].match(/data-id="item:/g) || []).length, all = IDEAS.length;
+    const words = listed === all ? `the ${NUM[all]} ideas` : `${NUM[listed]} of the ${NUM[all]} ideas`;
+    return h.replace(re, `$1<span data-t="p" class="from">${words} on the <a href="/">home page</a></span data-t="p">`);
+  };
+  const URL_ = 'https://kahransingh.com/about.html', IMG = 'https://kahransingh.com/wedding/photos/wedding-day/NVP_KAHRANXGOURAV_WEDDING-1361.jpg';
+  const page = `<!DOCTYPE html>
+<html lang="en" data-v="a">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>About — Kahran Singh</title>
+<meta name="description" content="${desc}">
+<meta property="og:title" content="About — Kahran Singh">
+<meta property="og:description" content="${desc}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${URL_}">
+<meta property="og:image" content="${IMG}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="About — Kahran Singh">
+<meta name="twitter:description" content="${desc}">
+<meta name="twitter:image" content="${IMG}">
+<link rel="canonical" href="${URL_}">
+<link rel="stylesheet" href="/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,600&display=swap" rel="stylesheet">
+<style>
+${style}</style>
+<!-- Google tag (gtag.js). The home opens this page inside itself to fly a photograph into its year; that is the home's
+     year_open event, not a visit here, so a framed copy sends no page view. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-H63H3KD6WQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  if (window.top === window) gtag('config', 'G-H63H3KD6WQ');
+</script>
+</head>
+<body>
+<main>
+${head}${ideasLine(flow(a))}</main>
+${nav}
+${flow(units)}
+<script src="/about.js"></script>
+<script src="/track.js"></script>
+</body>
+</html>
+`;
+  const kin = readFileSync(path.join(HERE, 'kin.js'), 'utf8');
+  const outs = [[path.join(ROOT, 'about.html'), page], [path.join(ROOT, 'about.js'), kin]];
+  if (process.argv.includes('--check')) {
+    const stale = outs.filter(([f, t]) => !existsSync(f) || readFileSync(f, 'utf8') !== t).map(([f]) => path.relative(ROOT, f));
+    if (stale.length) { console.log(`about: ${stale.join(', ')} not what studies/27/build.mjs --about writes`); process.exit(1); }
+    console.log('about: about.html and about.js are 27 a as built'); process.exit(0);
+  }
+  for (const [f, t] of outs) writeFileSync(f, t);
+  console.log(`about: about.html ${page.length} bytes (27 a), about.js ${kin.length} bytes (kin.js)`);
+  process.exit(0);
+}
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const one = (re, s, what) => { const m = re.exec(s); if (!m) throw new Error(`build: ${what} not found`); return m; };
 const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', nbsp: ' ', mdash: '—', ndash: '–', rsquo: '’', middot: '·', rarr: '→' };
@@ -26,7 +110,7 @@ const s07 = read('studies/07/index.html');
 const makes = Object.fromEntries([...s07.matchAll(/<section class="make">\s*<h2>([^<]+)<\/h2>([\s\S]*?)<\/section>/g)].map((m) => [m[1], m[2]]));
 const lede07 = one(/<p class="lede">([^.]*\.)/, s07, '07 lede')[1];
 const art = (k) => one(/<figure class="art">([\s\S]*?)<\/figure>/, makes[k], `07 ${k} art`)[1].trim();
-const sAbout = read('about.html');
+const sAbout = read('v2/about.html'); // the desk's About (the letter), archived at /v2/ on 9 Nov
 const close = one(/<p>(Write to me\.[\s\S]*?Tell me what’s going on\.) <span class="sign">/, sAbout, 'his close')[1];
 const sCv = read('cv.html');
 const cvLine = (s) => { if (!sCv.replace(/&amp;/g, '&').includes(s)) throw new Error(`build: cv lacks "${s}"`); return esc(s); };
@@ -39,8 +123,14 @@ const placeOf = new Map();
 for (const p of data.photos) { const k = p.caption.split(' — ')[0]; if (!placeOf.has(k)) placeOf.set(k, p); }
 const weeks = JSON.parse(read('lately/entries.json')).entries.map((e) => ({ y: e.title, t: `<a href="${e.link}">${esc(e.summary)}</a>`, week: e }));
 const howBook = { y: '2022', t: 'How the World Works, a first book of poems.' };
+// each poem's year, from evidence gathered by hand into poem-years.json (9 Nov: Kahran, "I thought things were broken up by
+// year"); the poems with none are one line, not a wall of titles. The build never reads the private sources themselves.
+const PY = JSON.parse(readFileSync(path.join(HERE, 'poem-years.json'), 'utf8'));
+for (const p of data.poems) if (!PY.poems[p.slug] === !PY.undated[p.slug]) throw new Error(`build: poem ${p.slug} is in neither or both of poem-years.json's poems and undated`);
+for (const s of [...Object.keys(PY.poems), ...Object.keys(PY.undated)]) if (!data.poems.some((p) => p.slug === s)) throw new Error(`build: poem-years.json names ${s}, not a poem in v2/data.json`);
+const dated = data.poems.filter((p) => PY.poems[p.slug]), undatedN = data.poems.length - dated.length;
 const runs = {
-  poems: [row('MFA candidate'), howBook, ...data.poems.map((p) => ({ poem: p }))],
+  poems: [row('MFA candidate'), howBook, ...dated.map((p) => ({ poem: p })), ...(undatedN ? [{ more: undatedN }] : [])],
   photographs: [...placeOf.keys()].map((k) => ({ place: k })),
   tools: [row('Building software'), ...weeks],
   companies: [row('Board of TomboyX'), row('Chief Revenue Officer'), row('Co-founded'), row('Advisor to Armoire'), row('General Partner'), { y: '2017–', t: cvLine('Portfolio includes Armoire, Humanly, and Kosha.') }, row('Vidyanext'), row('Aditi Technologies'), { y: '2012–15', t: cvLine('Clients included Dodge Data & Analytics (McGraw-Hill) and TUI Travel.') }, row('DataSphere'), { y: '2011–12', t: cvLine('Mobile product lead for a late-stage 300-person startup.') }, row('TravelPost'), row('Microsoft')],
@@ -63,7 +153,8 @@ const add = (u) => { if (units.some((x) => x.id === u.id)) throw new Error(`buil
 const rowSrc = (t) => SRC.rows.find((r) => plain(t).startsWith(r.start));
 const ownHref = (t) => /<a href="([^"]+)"/.exec(t)?.[1];
 const unitFor = (k, r) => {
-  if (r.poem) { const p = r.poem; return { id: `poem:${p.slug}`, k, text: p.title, html: esc(p.title), href: `/poems/${p.slug}.html`, how: 'the poem’s own page (v2/data.json)', lines: p.stanzas[0].split('\n').filter(Boolean).slice(0, 3) }; }
+  if (r.poem) { const p = r.poem; return { id: `poem:${p.slug}`, k, text: p.title, html: esc(p.title), href: `/poems/${p.slug}.html`, how: 'the poem’s own page (v2/data.json)', lines: p.stanzas[0].split('\n').filter(Boolean).slice(0, 3), written: PY.poems[p.slug] }; }
+  if (r.more) { const t = `and ${r.more} more poems`; return { id: 'more:poems', k, text: t, html: esc(t), href: '/poetry.html', how: 'the poems page, which holds every poem' }; }
   if (r.place) { const p = placeOf.get(r.place); return { id: `place:${slug(r.place)}`, k, text: r.place, html: esc(r.place), href: '/photography.html', how: `the photograph from there is on the photography page (v2/data.json, ${p.src})`, img: p.src, alt: p.alt }; }
   if (r.week) return { id: `week:${r.week.id.replace('record-', '')}`, k, y: r.y, date: r.week.date, text: r.week.summary, html: esc(r.week.summary), href: r.week.link, how: 'the week’s own page (lately/entries.json)' };
   if (r.talk) { const h = ownHref(r.t); const t = plain(r.t); return { id: `talk:${slug(t)}`, k, y: r.y, text: t, html: esc(t), href: h || SRC.rows.find((s) => t.startsWith(s.start))?.href || null, how: h ? 'the talk’s own video, linked from cv.html and speaking.html' : SRC.rows.find((s) => t.startsWith(s.start))?.how, why: h ? undefined : 'no video' }; }
@@ -140,12 +231,13 @@ for (const ids of byHref.values()) for (const a of ids) for (const b of ids) {
 
 // hand
 const match = (p) => { if (units.some((u) => u.id === p)) return [p]; const star = p.endsWith(':*'), hits = units.filter((u) => star ? u.id.startsWith(p.slice(0, -1)) : u.id === p || u.id.startsWith(p + '-')).map((u) => u.id); if (!hits.length || (!star && hits.length > 1)) throw new Error(`build: see names ${p} (${hits.length})`); return hits; };
-for (const [a, b, why] of SRC.see) { if (!why) throw new Error(`build: hand pair ${a} ${b} has no reason`); for (const x of match(a)) for (const y of match(b)) tie(x, y, 'hand', why.replace(/ \(cv\.html.*\)$/, '')); }
+for (const [a, b, why] of SRC.see) { if (!why) throw new Error(`build: hand pair ${a} ${b} has no reason`); if ([a, b].some((x) => PY.undated[x.replace(/^poem:/, '')])) continue; // a poem folded into the undated line has no fact to tie
+  for (const x of match(a)) for (const y of match(b)) tie(x, y, 'hand', why.replace(/ \(cv\.html.*\)$/, '')); }
 
 // photo: the photograph a poem's own page carries (og:image), when it is one of the site's captioned photographs
 const placeOfSrc = new Map(data.photos.map((p) => [p.src, p.caption.split(' — ')[0]]));
 const placeId = (k) => `place:${slug(k)}`;
-for (const p of data.poems) {
+for (const p of dated) {
   const og = /<meta property="og:image" content="https:\/\/kahransingh\.com([^"]+)"/.exec(read(`poems/${p.slug}.html`))?.[1];
   const k = og && placeOfSrc.get(og);
   if (k && byId[placeId(k)]) tie(`poem:${p.slug}`, placeId(k), 'photo', 'its photograph', 'poems with this photograph');
@@ -168,13 +260,19 @@ jobs.forEach((u, i) => { if (jobs[i + 1]) tie(u.id, jobs[i + 1].id, 'next', 'aft
 // theme: the exact set of themes poems/related.js gives a poem
 const themes = new Map([...read('poems/related.js').matchAll(/'([a-z0-9-]+)': \{ themes: \[([^\]]*)\]/g)].map((m) => [m[1], m[2].match(/[a-z]+/g).sort()]));
 const byTheme = new Map();
-for (const p of data.poems) { const t = themes.get(p.slug); if (t) { const k = t.join(' · '); byTheme.set(k, [...(byTheme.get(k) || []), `poem:${p.slug}`]); } }
+for (const p of dated) { const t = themes.get(p.slug); if (t) { const k = t.join(' · '); byTheme.set(k, [...(byTheme.get(k) || []), `poem:${p.slug}`]); } }
 for (const [k, ids] of byTheme) group(ids, 'theme', k);
 
 // year: facts that start in the same year, or are all now
 const byYear = new Map();
-for (const u of units) { if (u.id.startsWith('week:')) continue; const y = u.y === 'now' ? 'now' : startYear(u.y) || null; if (y) byYear.set(y, [...(byYear.get(y) || []), u.id]); }
-for (const [y, ids] of byYear) group(ids, 'year', String(y));
+for (const u of units) { if (u.id.startsWith('week:')) continue; const y = u.written ? u.written.year : u.y === 'now' ? 'now' : startYear(u.y) || null; if (y) byYear.set(y, [...(byYear.get(y) || []), u.id]); }
+// a year's tie holds when 16 or fewer facts share it; where the poems' years (poem-years.json) push a year past that, the
+// ledger's own facts keep the tie they had, and the poems of that year tie among themselves (again only if 16 or fewer)
+for (const [y, ids] of byYear) {
+  if (ids.length <= 16) { group(ids, 'year', String(y)); continue; }
+  group(ids.filter((id) => !id.startsWith('poem:')), 'year', String(y));
+  group(ids.filter((id) => id.startsWith('poem:')), 'year', String(y));
+}
 
 // making: a making and what is lifted inside it, or its few facts when nothing is
 for (const k of ORDER) {
@@ -197,7 +295,8 @@ const place = {};
 for (const u of units) {
   if (u.lift || isInside(u)) continue;
   if (u.id.startsWith('week:')) { const y = u.date.slice(0, 4); place[u.id] = { row: y === '2026' ? 'now' : y, how: `dated ${u.date} in lately/entries.json` }; continue; }
-  if (u.id.startsWith('poem:')) { place[u.id] = { row: 'now', how: 'no year on the poem’s page; one of the home’s poems now (v2/data.json)' }; continue; }
+  if (u.id.startsWith('poem:')) { place[u.id] = { row: rowOfY(String(u.written.year)), how: `${u.written.how} (studies/27/poem-years.json)` }; continue; }
+  if (u.id === 'more:poems') { place[u.id] = { row: 'now', how: `no evidence yet of the year these ${undatedN} were written (studies/27/poem-years.json, undated)` }; continue; }
   if (u.id.startsWith('place:')) { place[u.id] = { row: 'now', how: 'no year on the photograph; one of the home’s photographs now (v2/data.json)' }; continue; }
   const r = rowOfY(u.y);
   if (!r || !ROWS.includes(r)) throw new Error(`build: ${u.id} (${u.y}) has no row`);
